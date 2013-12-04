@@ -52,6 +52,11 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
     private boolean defeatEvent = false;
 
+    private double effectiveCollisionDistanceX;
+    private double effectiveCollisionDistanceY;
+    private Double xSizeMultiplicator;
+    private Double ySizeMultiplicator;
+
     public CollisionDetector() {
         this.surfaceWidth = DeviceInfo.INSTANCE.getSurfaceWidth();
         this.surfaceHeight = DeviceInfo.INSTANCE.getSurfaceHeight();
@@ -121,14 +126,18 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
         Map<Integer, Block> detectedCollisions = new HashMap<Integer, Block>();
         Ball ball = (Ball) game.getElements().getEntity(Elements.BALL);
+        Speed speed = ball.getSpeed();
+
+        effectiveCollisionDistanceX = game.getElements().getLevel().getBlocks().get(0).getWidth() * 2.5;
+        effectiveCollisionDistanceY = game.getElements().getLevel().getBlocks().get(0).getHeight() * 2.5;
 
         for (Block block : game.getElements().getLevel().getBlocks()) {
 
             if (block.getHitPoints() > 0) {
 
                 // Calculate rough distance to discard most blocks from further calculations
-                boolean distanceX = Math.abs(block.getX() - ball.getCorrX()) < block.getWidth() * 1.5;
-                boolean distanceY = Math.abs(block.getY() - ball.getCorrY()) < block.getHeight() * 1.5;
+                boolean distanceX = Math.abs(block.getX() - ball.getCorrX()) < effectiveCollisionDistanceX;
+                boolean distanceY = Math.abs(block.getY() - ball.getCorrY()) < effectiveCollisionDistanceY;
 
                 // Rough distance satisfied
                 if (distanceX && distanceY) {
