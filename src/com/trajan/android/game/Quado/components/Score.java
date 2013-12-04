@@ -53,17 +53,17 @@ public class Score implements Component {
 
     public void brickHit() {
         score += BLOCK_SCORE_VALUE * scoreMultiplicator;
-        if (scoreMultiplicator > scoreMultiplicatorMin) {
-            scoreMultiplicator--;
+        if (scoreMultiplicator < scoreMultiplicatorMax) {
+            scoreMultiplicator++;
         }
 
-        if (scoreMultiplicator < scoreMultiplicator) {
+        if (scoreMultiplicator < scoreMultiplicatorMin) {
             scoreMultiplicator = scoreMultiplicatorMin;
         }
     }
 
     public void padHit() {
-        scoreMultiplicator = scoreMultiplicatorMax;
+        scoreMultiplicator = scoreMultiplicatorMin;
     }
 
 }
