@@ -40,6 +40,8 @@ public class ScreenPause extends BasicEntity implements MyTouchEventListener {
     private String message;
     private int buttonLeft;
     private int buttonRight;
+    private int buttonNextLevelTop;
+    private int buttonNextLevelBottom;
     private int buttonResumeTop;
     private int buttonResumeBottom;
     private int buttonMainMenuTop;
@@ -102,12 +104,17 @@ public class ScreenPause extends BasicEntity implements MyTouchEventListener {
 
             buttonLeft = 2 * border;
             buttonRight = canvas.getWidth() - 2 * border;
+            buttonNextLevelTop = canvas.getHeight() - 10 * border;
+            buttonNextLevelBottom = canvas.getHeight() - 8 * border;
             buttonResumeTop = canvas.getHeight() - 7 * border;
             buttonResumeBottom = canvas.getHeight() - 5 * border;
             buttonMainMenuTop = canvas.getHeight() - 4 * border;
             buttonMainMenuBottom = canvas.getHeight() - 2 * border;
 
             // Draw buttons
+            if (gameState.getPreviousState() == gameState.STATE_ARCADE) {
+                canvas.drawRect(buttonLeft, buttonNextLevelTop, buttonRight, buttonNextLevelBottom, paint);
+            }
             canvas.drawRect(buttonLeft, buttonResumeTop, buttonRight, buttonResumeBottom, paint);
             paint.setStyle(Paint.Style.STROKE);
             canvas.drawRect(buttonLeft, buttonMainMenuTop, buttonRight, buttonMainMenuBottom, paint);
@@ -117,6 +124,9 @@ public class ScreenPause extends BasicEntity implements MyTouchEventListener {
             paint.setColor(MyColors.getGuiElementTextColor());
             int textHeight = TextSizeCalculator.getHeightFromTextSize(paint.getTextSize() * 0.7f);
             paint.setTextSize((int) (paint.getTextSize() * 0.7f));
+            if (gameState.getPreviousState() == gameState.STATE_ARCADE) {
+                canvas.drawText("NEXT LEVEL", canvas.getWidth() / 2, getTextY(buttonNextLevelTop, buttonNextLevelBottom, textHeight), paint);
+            }
             canvas.drawText("RESUME", canvas.getWidth() / 2, getTextY(buttonResumeTop, buttonResumeBottom, textHeight), paint);
 
             paint.setColor(MyColors.getGuiElementColor());
@@ -179,6 +189,16 @@ public class ScreenPause extends BasicEntity implements MyTouchEventListener {
 
                 float eventX = event.getX();
                 float eventY = event.getY();
+
+                // Next level button
+                if (gameState.getPreviousState() == gameState.STATE_ARCADE &&
+                        eventX >= buttonLeft && eventX <= buttonRight) {
+                    if (eventY <= buttonNextLevelBottom && eventY >= buttonNextLevelTop) {
+                        sounds.playBarHit();
+                        gameState.setStateArcade();
+                        game.restart(false);
+                    }
+                }
 
                 // Resume button
                 if (eventX >= buttonLeft && eventX <= buttonRight) {
