@@ -53,7 +53,7 @@ public class Speed implements Component {
         arcadeSpeedIncrement = 0;
 
         xv = 0.5f;
-        yv = 1.5f;
+        yv = (float) (1.3f + (Math.random() * 0.3f));
 
         if (Math.random() >= 0.5) {
             xDirection = DIRECTION_RIGHT;
