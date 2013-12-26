@@ -19,8 +19,8 @@
 
 package com.trajan.android.game.Quado.components;
 
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.*;
+import android.util.Log;
 import com.trajan.android.game.Quado.DeviceInfo;
 import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
@@ -57,9 +57,12 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
     private Double xSizeMultiplicator;
     private Double ySizeMultiplicator;
 
+    private Region clip;
+
     public CollisionDetector() {
         this.surfaceWidth = DeviceInfo.INSTANCE.getSurfaceWidth();
         this.surfaceHeight = DeviceInfo.INSTANCE.getSurfaceHeight();
+        clip = new Region(0, 0, surfaceWidth, surfaceHeight);
     }
 
     public void checkBarCollision(MainGamePanel game) {
@@ -122,6 +125,82 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
     }
 
+    private Point[] getRectPoints(Rect rect) {
+        Point[] points = new Point[9];
+        points[TOP_LEFT] = new Point(rect.left, rect.top);
+        points[TOP_RIGHT] = new Point(rect.right, rect.top);
+        points[BOTTOM_RIGHT] = new Point(rect.right, rect.bottom);
+        points[BOTTOM_LEFT] = new Point(rect.left, rect.bottom);
+        return points;
+    }
+
+    private void removeContainedPoint(Point[] points, Rect rect) {
+        for (int i = 5; i <= 8; i++) {
+            Point point = points[i];
+            if (rect.contains(point.x, point.y)) {
+                points[i] = null;
+            }
+        }
+    }
+
+    private boolean isPointArrayEmpty(Point[] points) {
+        boolean result = true;
+        for (Point point : points) {
+            if (point != null) {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    private int getPointIndex(int loopIndex) {
+        if (loopIndex + 4 > 8) {
+            return loopIndex + 4 - 8;
+        } else {
+            return loopIndex + 4;
+        }
+    }
+
+    private Path createBallCorrPolygon(Point[] ballPoints, Point[] ballCorrPoints) {
+        Path path = new Path();
+        int containedPoint = 0;
+        for (int i = 5; i <= 8; i++) {
+            if(ballPoints[i] == null) {
+                containedPoint = i;
+                break;
+            }
+        }
+        boolean first = true;
+        int[] sequence;
+        if (containedPoint == 5) {
+            sequence = new int[] {50,60,6,7,8,80,50};
+        } else if (containedPoint == 6) {
+            sequence = new int[] {5,50,60,70,7,8,5};
+        } else if (containedPoint == 7) {
+            sequence = new int[] {5,6,60,70,80,8,5};
+        } else {
+            sequence = new int[] {5,6,7,70,80,50,5};
+        }
+         for (int i = 0; i < sequence.length; i++) {
+            Point point;
+            int value = sequence[i];
+            if (value % 10 == 0) {
+                point = ballCorrPoints[value / 10];
+            } else {
+                point = ballPoints[value];
+            }
+            if (point != null) {
+                if (first) {
+                    first = false;
+                    path.moveTo(point.x, point.y);
+                } else {
+                    path.lineTo(point.x, point.y);
+                }
+            }
+        }
+        return path;
+    }
+
     public void checkBallBlocksCollision(MainGamePanel game) {
 
         Map<Integer, Block> detectedCollisions = new HashMap<Integer, Block>();
@@ -130,6 +209,24 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
         effectiveCollisionDistanceX = game.getElements().getLevel().getBlocks().get(0).getWidth() * 2.5;
         effectiveCollisionDistanceY = game.getElements().getLevel().getBlocks().get(0).getHeight() * 2.5;
+
+        int corrX = (int) Math.ceil(speed.getXv() * speed.getSpeedMultiplicator()) * (speed.getxDirection());
+        int corrY = (int) Math.ceil(speed.getYv() * speed.getSpeedMultiplicator()) * (speed.getyDirection());
+
+        Rect ballRect = createEntityRect(ball);
+        Rect ballRectCorr = createEntityRectWithCorrections(ball, corrX, corrY);
+
+        Point[] ballPoints = getRectPoints(ballRect);
+        Point[] ballPointsCorr = getRectPoints(ballRectCorr);
+
+        removeContainedPoint(ballPoints, ballRectCorr);
+        removeContainedPoint(ballPointsCorr, ballRect);
+
+        Path ballPolygonPath = createBallCorrPolygon(ballPoints, ballPointsCorr);
+
+        Region ballPolygon = new Region();
+        ballPolygon.setPath(ballPolygonPath, clip);
+        ball.setBallPolygon(ballPolygonPath);
 
         for (Block block : game.getElements().getLevel().getBlocks()) {
 
@@ -142,7 +239,7 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
                 // Rough distance satisfied
                 if (distanceX && distanceY) {
 
-                    int hitDirection = checkHitDirection(ball, block);
+                    int hitDirection = checkHitDirection(ballPolygon, ballRectCorr, speed, block);
 
                     if (hitDirection != NO_HIT) {
 
@@ -303,23 +400,20 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
         return new Rect(left, top, right, bottom);
     }
 
-    private int checkHitDirection(Ball ball, Block block) {
-
-        Speed speed = ball.getSpeed();
-
-        int corrX = (int) Math.ceil(speed.getXv() * speed.getSpeedMultiplicator()) * (speed.getxDirection());
-        int corrY = (int) Math.ceil(speed.getYv() * speed.getSpeedMultiplicator()) * (speed.getyDirection());
+    private int checkHitDirection(Region ballPolygonRegion, Rect ballRectCorr, Speed speed, Block block) {
 
         Rect blockRect = createEntityRect(block);
-        Rect ballRect = createEntityRectWithCorrections(ball, corrX, corrY);
 
-        if (ballRect.intersect(blockRect)) {
+        Region blockRegion = new Region();
+        blockRegion.set(blockRect);
 
-            int diffXd = block.getX() - ballRect.centerX();
-            int diffYd = block.getY() - ballRect.centerY();
+        if (blockRegion.op(ballPolygonRegion, Region.Op.INTERSECT)) {
 
-            int diffX = Math.abs(block.getX() - ballRect.centerX()) - (ballRect.width() / 2) - (block.getWidth() / 2);
-            int diffY = Math.abs(block.getY() - ballRect.centerY()) - (ballRect.height() / 2) - (block.getHeight() / 2);
+            int diffXd = block.getX() - ballRectCorr.centerX();
+            int diffYd = block.getY() - ballRectCorr.centerY();
+
+            int diffX = Math.abs(block.getX() - ballRectCorr.centerX()) - (ballRectCorr.width() / 2) - (block.getWidth() / 2);
+            int diffY = Math.abs(block.getY() - ballRectCorr.centerY()) - (ballRectCorr.height() / 2) - (block.getHeight() / 2);
 
             int absDiffX = Math.abs(diffX);
             int absDiffY = Math.abs(diffY);

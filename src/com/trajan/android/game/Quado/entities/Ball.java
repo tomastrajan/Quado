@@ -44,6 +44,8 @@ public class Ball extends BasicEntity implements MyUpdateEventListener {
 
     private boolean isArcadeTimer = false;
 
+    private Path ballPolygon;
+
     public Ball(Dimensions dimensions) {
         super(dimensions);
         speed = new Speed();
@@ -56,8 +58,14 @@ public class Ball extends BasicEntity implements MyUpdateEventListener {
     public void render(MainGamePanel game, Canvas canvas, GameState gameState) {
 
         paint.setColor(MyColors.getBallColor());
-        canvas.clipRect(new Rect(x - width / 2, y - height / 2, x + width / 2, y + height / 2), Region.Op.REPLACE);
+        canvas.clipRect(0,0, canvas.getWidth(), canvas.getHeight(), Region.Op.REPLACE);
         canvas.drawRect(x - width / 2, y - height / 2, x + width / 2, y + height / 2, paint);
+        /*
+        if (ballPolygon != null) {
+            paint.setColor(MyColors.getBlockColorByConstant(1));
+            canvas.drawPath(ballPolygon, paint);
+        }
+        */
 
     }
 
@@ -125,5 +133,9 @@ public class Ball extends BasicEntity implements MyUpdateEventListener {
 
     public int getCorrY() {
         return corrY;
+    }
+
+    public void setBallPolygon(Path ballPolygon) {
+        this.ballPolygon = ballPolygon;
     }
 }
