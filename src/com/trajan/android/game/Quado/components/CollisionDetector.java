@@ -54,8 +54,6 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
     private double effectiveCollisionDistanceX;
     private double effectiveCollisionDistanceY;
-    private Double xSizeMultiplicator;
-    private Double ySizeMultiplicator;
 
     private Region clip;
 
@@ -103,6 +101,12 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
                     speed.toggleYDirection();
 
+                    if (diffX < 0) {
+                        speed.setxDirection(Speed.DIRECTION_RIGHT);
+                    } else {
+                        speed.setxDirection(Speed.DIRECTION_LEFT);
+                    }
+
                     score.padHit();
 
                     // Add effect to score display
@@ -134,12 +138,21 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
         return points;
     }
 
-    private void removeContainedPoint(Point[] points, Rect rect) {
-        for (int i = 5; i <= 8; i++) {
-            Point point = points[i];
-            if (rect.contains(point.x, point.y)) {
-                points[i] = null;
-            }
+    private void removeContainedPoint(Point[] dest, Rect destRect, Rect sourceRect) {
+        int x = sourceRect.centerX() - destRect.centerX();
+        int y = sourceRect.centerY() - destRect.centerY();
+
+        if (x < 0 && y < 0) {
+            dest[5] = null;
+        }
+        if (x > 0 && y < 0) {
+            dest[6] = null;
+        }
+        if (x > 0 && y > 0) {
+            dest[7] = null;
+        }
+        if (x < 0 && y > 0) {
+            dest[8] = null;
         }
     }
 
@@ -171,14 +184,14 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
             }
         }
         boolean first = true;
-        int[] sequence;
+        int[] sequence = {};
         if (containedPoint == 5) {
             sequence = new int[] {50,60,6,7,8,80,50};
         } else if (containedPoint == 6) {
             sequence = new int[] {5,50,60,70,7,8,5};
         } else if (containedPoint == 7) {
             sequence = new int[] {5,6,60,70,80,8,5};
-        } else {
+        } else if (containedPoint == 8) {
             sequence = new int[] {5,6,7,70,80,50,5};
         }
          for (int i = 0; i < sequence.length; i++) {
@@ -196,6 +209,8 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
                 } else {
                     path.lineTo(point.x, point.y);
                 }
+            } else {
+                throw new RuntimeException("ITS FUCKED");
             }
         }
         return path;
@@ -219,8 +234,8 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
         Point[] ballPoints = getRectPoints(ballRect);
         Point[] ballPointsCorr = getRectPoints(ballRectCorr);
 
-        removeContainedPoint(ballPoints, ballRectCorr);
-        removeContainedPoint(ballPointsCorr, ballRect);
+        removeContainedPoint(ballPoints, ballRect, ballRectCorr);
+        removeContainedPoint(ballPointsCorr, ballRectCorr, ballRect);
 
         Path ballPolygonPath = createBallCorrPolygon(ballPoints, ballPointsCorr);
 
@@ -239,7 +254,7 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
                 // Rough distance satisfied
                 if (distanceX && distanceY) {
 
-                    int hitDirection = checkHitDirection(ballPolygon, ballRectCorr, speed, block);
+                    int hitDirection = checkHitDirection(ballPolygon, ballRect, ballRectCorr, speed, block);
 
                     if (hitDirection != NO_HIT) {
 
@@ -272,7 +287,6 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
                     }
 
                 }
-
             }
         }
 
@@ -298,44 +312,45 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
         for (Integer hitType : hitTypes) {
 
-            if (hitType == TOP) {
-                directionArray[BOTTOM] = false;
+            switch (hitType) {
+                case TOP: {
+                    directionArray[BOTTOM] = false;
+                    break;
+                }
+                case RIGHT: {
+                    directionArray[LEFT] = false;
+                    break;
+                }
+                case BOTTOM: {
+                    directionArray[TOP] = false;
+                    break;
+                }
+                case LEFT: {
+                    directionArray[RIGHT] = false;
+                    break;
+                }
+                case TOP_LEFT: {
+                    directionArray[BOTTOM] = false;
+                    directionArray[RIGHT] = false;
+                    break;
+                }
+                case TOP_RIGHT: {
+                    directionArray[BOTTOM] = false;
+                    directionArray[LEFT] = false;
+                    break;
+                }
+                case BOTTOM_LEFT: {
+                    directionArray[TOP] = false;
+                    directionArray[RIGHT] = false;
+                    break;
+                }
+                case BOTTOM_RIGHT: {
+                    directionArray[TOP] = false;
+                    directionArray[LEFT] = false;
+                    break;
+                }
             }
-
-            if (hitType == RIGHT) {
-                directionArray[LEFT] = false;
-            }
-
-            if (hitType == BOTTOM) {
-                directionArray[TOP] = false;
-            }
-
-            if (hitType == LEFT) {
-                directionArray[RIGHT] = false;
-            }
-
-            if (hitType == TOP_LEFT) {
-                directionArray[BOTTOM] = false;
-                directionArray[RIGHT] = false;
-            }
-
-            if (hitType == TOP_RIGHT) {
-                directionArray[BOTTOM] = false;
-                directionArray[LEFT] = false;
-            }
-
-            if (hitType == BOTTOM_LEFT) {
-                directionArray[TOP] = false;
-                directionArray[RIGHT] = false;
-            }
-
-            if (hitType == BOTTOM_RIGHT) {
-                directionArray[TOP] = false;
-                directionArray[LEFT] = false;
-            }
-
         }
-
         return directionArray;
     }
 
@@ -358,9 +373,7 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
         if (directions[LEFT] && !directions[RIGHT]) {
             speed.setxDirection(Speed.DIRECTION_LEFT);
         }
-
     }
-
 
     public void checkGameSpaceCollisions(MainGamePanel game) {
 
@@ -400,7 +413,7 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
         return new Rect(left, top, right, bottom);
     }
 
-    private int checkHitDirection(Region ballPolygonRegion, Rect ballRectCorr, Speed speed, Block block) {
+    private int checkHitDirection(Region ballPolygonRegion, Rect ballRect, Rect ballRectCorr, Speed speed, Block block) {
 
         Rect blockRect = createEntityRect(block);
 
@@ -409,58 +422,56 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
         if (blockRegion.op(ballPolygonRegion, Region.Op.INTERSECT)) {
 
-            int diffXd = block.getX() - ballRectCorr.centerX();
-            int diffYd = block.getY() - ballRectCorr.centerY();
-
-            int diffX = Math.abs(block.getX() - ballRectCorr.centerX()) - (ballRectCorr.width() / 2) - (block.getWidth() / 2);
-            int diffY = Math.abs(block.getY() - ballRectCorr.centerY()) - (ballRectCorr.height() / 2) - (block.getHeight() / 2);
-
-            int absDiffX = Math.abs(diffX);
-            int absDiffY = Math.abs(diffY);
-            boolean cornerHit = Math.abs(absDiffX - absDiffY) < Math.max(absDiffX, absDiffY) * 0.05f;
-
-            // TopLeft hit
-            if (diffYd > 0 && diffY <= 0 && diffXd > 0 && diffX <= 0 && cornerHit) {
-                return TOP_LEFT;
-            }
-
-            // TopRight hit
-            if (diffYd > 0 && diffY <= 0 && diffXd < 0 && diffX <= 0 && cornerHit) {
-                return TOP_RIGHT;
-            }
-
-            // BottomLeft hit
-            if (diffYd < 0 && diffY <= 0 && diffXd > 0 && diffX <= 0 && cornerHit) {
-                return BOTTOM_LEFT;
-            }
-
-            // BottomRight hit
-            if (diffYd < 0 && diffY <= 0 && diffXd < 0 && diffX <= 0 && cornerHit) {
-                return BOTTOM_RIGHT;
-            }
+            int diffXd = block.getX() - ballRect.centerX();
+            int diffYd = block.getY() - ballRect.centerY();
 
             // Top hit
-            if (diffYd > 0 && diffY <= 0 && diffY > diffX && speed.getyDirection() == Speed.DIRECTION_DOWN) {
+            if (diffYd > 0 && Math.abs(diffXd) < Math.abs(diffYd)) {
                 return TOP;
             }
 
             // Bottom hit
-            if (diffYd < 0 && diffY <= 0 && diffY > diffX && speed.getyDirection() == Speed.DIRECTION_UP) {
+            if (diffYd < 0 && Math.abs(diffXd) < Math.abs(diffYd)) {
                 return BOTTOM;
             }
 
             // Left hit
-            if (diffXd > 0 && diffX <= 0 && diffY < diffX && speed.getxDirection() == Speed.DIRECTION_RIGHT) {
+            if (diffXd > 0 && Math.abs(diffXd) > Math.abs(diffYd)) {
                 return LEFT;
 
             }
 
             // Right hit
-            if (diffXd < 0 && diffX <= 0 && diffY < diffX && speed.getxDirection() == Speed.DIRECTION_LEFT) {
+            if (diffXd < 0 && Math.abs(diffXd) > Math.abs(diffYd)) {
                 return RIGHT;
             }
 
-            return NO_HIT;
+            if (Math.abs(diffXd) != Math.abs(diffYd)) {
+                throw new RuntimeException("NOT SO CORNER HIT ARE YOU ?");
+            }
+
+            // TopLeft hit
+            if (diffXd > 0 && diffYd > 0) {
+                return TOP_LEFT;
+            }
+
+            // TopRight hit
+            if (diffXd < 0 && diffYd > 0) {
+                return TOP_RIGHT;
+            }
+
+            // BottomLeft hit
+            if (diffXd > 0 && diffYd < 0) {
+                return BOTTOM_LEFT;
+            }
+
+            // BottomRight hit
+            if (diffXd < 0 && diffYd < 0) {
+                return BOTTOM_RIGHT;
+            }
+
+            throw new RuntimeException("NO HIT IS FUCKED UP!");
+            //return NO_HIT;
 
         }
         return NO_HIT;

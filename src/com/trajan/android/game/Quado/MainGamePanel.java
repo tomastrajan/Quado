@@ -188,7 +188,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
         // Initialize game entities
         bar = new Bar(posSizeCalc.getBar());
-        ball = new Ball(posSizeCalc.getBall());
+        ball = new Ball(posSizeCalc.getBall(), new Speed(gameState.isStateArcade()));
         buttonPause = new ButtonPause(posSizeCalc.getCloseButton());
         scoreDisplay = new ScoreDisplay(posSizeCalc.getScoreDisplay());
         screenDefeat = new ScreenDefeat(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_defeat);

@@ -25,7 +25,7 @@ public class Speed implements Component {
 
     private static final String TAG = Speed.class.getSimpleName();
 
-    public static final float BASE_SPEED_MULTIPLICATOR = 3.0f;
+    public static final float BASE_SPEED_MULTIPLICATOR = 4.0f;
 
     public static final int DIRECTION_RIGHT	= 1;
     public static final int DIRECTION_LEFT	= -1;
@@ -43,11 +43,17 @@ public class Speed implements Component {
     private int xDirection;
     private int yDirection;
 
-    private float speedMultiplicator = 1;
+    private float speedMultiplicator;
     private float displaySizeSpeedMultiplicator = 1;
     private float arcadeSpeedIncrement = 0;
 
-    public Speed() {
+    public Speed(boolean isArcade) {
+
+        if (isArcade) {
+            speedMultiplicator = BASE_SPEED_MULTIPLICATOR * displaySizeSpeedMultiplicator;
+        } else {
+            speedMultiplicator = BASE_SPEED_MULTIPLICATOR * displaySizeSpeedMultiplicator;
+        }
 
         displaySizeSpeedMultiplicator = (DeviceInfo.INSTANCE.getSurfaceHeight() / 800.0f);
         arcadeSpeedIncrement = 0;

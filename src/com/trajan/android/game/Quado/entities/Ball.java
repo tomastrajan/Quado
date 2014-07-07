@@ -46,9 +46,9 @@ public class Ball extends BasicEntity implements MyUpdateEventListener {
 
     private Path ballPolygon;
 
-    public Ball(Dimensions dimensions) {
+    public Ball(Dimensions dimensions, Speed speed) {
         super(dimensions);
-        speed = new Speed();
+        this.speed = speed;
 
         moveX = x;
         moveY = y;
@@ -60,12 +60,14 @@ public class Ball extends BasicEntity implements MyUpdateEventListener {
         paint.setColor(MyColors.getBallColor());
         canvas.clipRect(0,0, canvas.getWidth(), canvas.getHeight(), Region.Op.REPLACE);
         canvas.drawRect(x - width / 2, y - height / 2, x + width / 2, y + height / 2, paint);
-        /*
-        if (ballPolygon != null) {
-            paint.setColor(MyColors.getBlockColorByConstant(1));
-            canvas.drawPath(ballPolygon, paint);
-        }
-        */
+
+//        Paint helperPiant = new Paint();
+//        helperPiant.setColor(Color.parseColor("#ff0000"));
+//        if (ballPolygon != null) {
+//            paint.setColor(MyColors.getBlockColorByConstant(1));
+//            canvas.drawPath(ballPolygon, helperPiant);
+//        }
+
 
     }
 
