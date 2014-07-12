@@ -121,7 +121,7 @@ public class ExtStorage implements Component {
 
                 sortHelper.addAll(highScore.keySet());
                 Collections.sort(sortHelper);
-                if (sortHelper.size() > 5) {
+                if (sortHelper.size() > 10) {
                     sortHelper.remove(0);
                 }
 

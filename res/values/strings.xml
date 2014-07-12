@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">QUADO</string>
-    <string name="message_victory">EPIC WIN !</string>
-    <string name="message_defeat">LOL NOOB !</string>
+    <string name="message_victory">EPIC WIN</string>
+    <string name="message_defeat_normal">LOL NOOB</string>
+    <string name="message_defeat_arcade">NICE TRY</string>
     <string name="message_pause">PAUSED</string>
     <string name="message_settings">SETTINGS</string>
     <string name="message_menu">QUADO</string>

@@ -34,7 +34,7 @@ import com.trajan.android.game.Quado.entities.gui.ButtonTouchListener;
 import com.trajan.android.game.Quado.helpers.Dimensions;
 import com.trajan.android.game.Quado.helpers.MyColors;
 
-public class ScreenPause extends Screen {
+public class ScreenSettings extends Screen {
 
     private static final String TAG = ScreenVictory.class.getSimpleName();
 
@@ -57,7 +57,7 @@ public class ScreenPause extends Screen {
     private Button buttonChangeTheme;
     private Button buttonChangeVolume;
 
-    public ScreenPause(Dimensions dimensions, Context context, int messageId) {
+    public ScreenSettings(Dimensions dimensions, Context context, int messageId) {
         super(dimensions, context, messageId);
 
         initializeSelectedTheme();

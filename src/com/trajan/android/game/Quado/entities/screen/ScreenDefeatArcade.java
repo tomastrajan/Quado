@@ -33,32 +33,33 @@ import com.trajan.android.game.Quado.entities.gui.ButtonTouchListener;
 import com.trajan.android.game.Quado.entities.gui.Label;
 import com.trajan.android.game.Quado.entities.gui.Table;
 import com.trajan.android.game.Quado.helpers.*;
-import com.trajan.android.game.Quado.levels.LevelList;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class ScreenVictory extends Screen {
+public class ScreenDefeatArcade extends Screen {
 
     private static final String TAG = ScreenVictory.class.getSimpleName();
 
     private Button buttonQuit;
-    private Button buttonContinue;
-
+    private Button buttonRetry;
     private Table table;
     private Label achievedScore;
     private List<List<String>> scores;
 
-    public ScreenVictory(Dimensions dimensions, Context context, int messageId) {
+    public ScreenDefeatArcade(Dimensions dimensions, Context context, int messageId) {
         super(dimensions, context, messageId);
-        buttonContinue = new Button(Button.BUTTON_2_1, Button.BUTTON_PRIMARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight / 2, "CONTINUE");
-        buttonContinue.addButtonTouchListener(new ButtonTouchListener() {
+        buttonRetry = new Button(Button.BUTTON_2_1, Button.BUTTON_PRIMARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight / 2, "RETRY");
+        buttonRetry.addButtonTouchListener(new ButtonTouchListener() {
             @Override
             public void excute(MainGamePanel game, Sounds sounds, GameState gameState) {
-                sounds.playHit();
-                gameState.setStateGame();
-                game.restart(true);
+                sounds.playBarHit();
+                if (gameState.getPreviousState() == GameState.STATE_GAME) {
+                    gameState.setStateGame();
+                } else {
+                    gameState.setStateArcade();
+                }
+                game.restart(false);
             }
         });
         buttonQuit = new Button(Button.BUTTON_2_2, Button.BUTTON_SECONDARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight / 2, "QUIT");
@@ -74,11 +75,10 @@ public class ScreenVictory extends Screen {
         List<String> headers = new ArrayList<String>();
         headers.add("#");
         headers.add("Name");
-        headers.add("Level");
+        headers.add("Time");
         headers.add("Score");
         table = new Table(dContainerWidth, dMargin, (int) (dCanvasHeight * 0.25),  headers, null);
     }
-
 
     public void resetScore() {
         scores = null;
@@ -93,12 +93,12 @@ public class ScreenVictory extends Screen {
             List<String> scoresFromStorage;
             int i = 1;
             if (ext != null) {
-                scoresFromStorage = ext.getHighScore(ExtStorage.HIGH_SCORE_NORMAL_FILE);
+                scoresFromStorage = ext.getHighScore(ExtStorage.HIGH_SCORE_ARCADE_FILE);
                 for (String score : scoresFromStorage) {
                     List<String> scoreRow = new ArrayList<>();
                     scoreRow.add("" + i);
                     scoreRow.add("Player");
-                    scoreRow.add(score.split("\\|")[1] + "");
+                    scoreRow.add(score.split("\\|")[1] + " s");
                     scoreRow.add(score.split("\\|")[0]);
                     scores.add(scoreRow);
                     if (score.split("\\|")[0].equals(actualScore)) {
@@ -112,12 +112,11 @@ public class ScreenVictory extends Screen {
     }
 
     @Override
-    public void render(MainGamePanel game,Canvas canvas, GameState gameState) {
+    public void render(MainGamePanel game, Canvas canvas, GameState gameState) {
+        if (gameState.isStateDefeatArcade()) {
+            setzIndex(5);
 
-        setzIndex(5);
-
-        if (gameState.isStateVictory()) {
-            canvas.clipRect(new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), Region.Op.REPLACE);
+            canvas.clipRect(0, 0, canvas.getWidth(), canvas.getHeight(), Region.Op.REPLACE);
 
             prepareDefautlPaint(canvas);
             renderBorder(canvas);
@@ -125,16 +124,15 @@ public class ScreenVictory extends Screen {
 
             initScore(game);
 
-            String level = String.valueOf((LevelList.getLevelId() + 1));
+            String time = String.valueOf(((gameState.getArcadeTimeEnd() - gameState.getArcadeTimeStart()) / 1000.0f));
             String score = String.valueOf(((Score) game.getElements().getComponent(Elements.SCORE)).getScore());
-            achievedScore.setValue(level + ". level - score : " + score);
+            achievedScore.setValue("Score: " + score + ", time: " + time + " s");
             achievedScore.setColor(MyColors.getGuiNewHighScoreColor());
             achievedScore.setTextSize(TextSizeCalculator.getDefaultTextSize(canvas) / 2);
             achievedScore.render(game, canvas, gameState);
 
             table.render(game, canvas, gameState);
-
-            buttonContinue.render(game, canvas, gameState);
+            buttonRetry.render(game, canvas, gameState);
             buttonQuit.render(game, canvas, gameState);
         }
     }
@@ -144,10 +142,10 @@ public class ScreenVictory extends Screen {
 
         GameState gameState = (GameState) game.getElements().getComponent(Elements.GAME_STATE);
 
-        if (gameState.isStateVictory()) {
+        if (gameState.isStateDefeatArcade()) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                buttonContinue.handleTouchEvent(game, event);
                 buttonQuit.handleTouchEvent(game, event);
+                buttonRetry.handleTouchEvent(game, event);
             }
         }
     }
