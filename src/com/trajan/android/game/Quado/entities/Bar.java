@@ -24,12 +24,9 @@ import android.view.MotionEvent;
 import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.GameState;
-import com.trajan.android.game.Quado.helpers.MyTouchEventListener;
-import com.trajan.android.game.Quado.helpers.MyUpdateEventListener;
-import com.trajan.android.game.Quado.helpers.Dimensions;
-import com.trajan.android.game.Quado.helpers.MyColors;
+import com.trajan.android.game.Quado.helpers.*;
 
-public class Bar extends BasicEntity implements MyTouchEventListener, MyUpdateEventListener {
+public class Bar extends BasicEntity implements TouchEventListener, MyUpdateEventListener {
 
     private static final String TAG = Bar.class.getSimpleName();
 
@@ -61,7 +58,7 @@ public class Bar extends BasicEntity implements MyTouchEventListener, MyUpdateEv
 
             canvas.clipRect(0, 0 , canvas.getWidth(), canvas.getHeight(), Region.Op.REPLACE);
 
-            paint.setAlpha(MyColors.getAlphaAlmostTransparent());
+            paint.setAlpha(MyColors.getAlpha());
             canvas.drawCircle(x, (float) (y + (height / 2) + 1.5 * height), height, paint);
         }
 

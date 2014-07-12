@@ -20,10 +20,14 @@
 package com.trajan.android.game.Quado.entities;
 
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.GameState;
+import com.trajan.android.game.Quado.helpers.Dimensions;
 
 public interface Entity {
+
+    public void setDimensions(Dimensions dimensions);
 
     public int getX();
     public void setX(int x);
@@ -37,6 +41,8 @@ public interface Entity {
     public void setTouched(boolean touched);
     public int getzIndex();
     public void setzIndex(int zIndex);
+
+    public Rect getRect();
 
     public void render(MainGamePanel game, Canvas canvas, GameState gameState);
 

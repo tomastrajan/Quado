@@ -38,6 +38,10 @@ public class GameState implements Component {
 
     }
 
+    public static void setPreviousState(int previousState) {
+        GameState.previousState = previousState;
+    }
+
     private void setNewState(int newState) {
         if (newState != currentState) {
             previousState = currentState;
@@ -95,6 +99,14 @@ public class GameState implements Component {
 
     public boolean isStateArcade() {
         return currentState == STATE_ARCADE;
+    }
+
+    public boolean isGameStateAnyActiveState() {
+        if (isStateGame() || isStateArcade() || isStateMenu()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static void resetGameState() {

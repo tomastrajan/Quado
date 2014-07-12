@@ -21,7 +21,7 @@ package com.trajan.android.game.Quado.helpers;
 import android.view.MotionEvent;
 import com.trajan.android.game.Quado.MainGamePanel;
 
-public interface MyTouchEventListener {
+public interface TouchEventListener {
 
     public void handleTouchEvent(MainGamePanel game, MotionEvent event);
 

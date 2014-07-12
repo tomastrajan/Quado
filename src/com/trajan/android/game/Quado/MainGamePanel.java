@@ -25,9 +25,13 @@ import android.graphics.PixelFormat;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import com.trajan.android.game.Quado.helpers.MyTouchEventListener;
-import com.trajan.android.game.Quado.helpers.MyUpdateEventListener;
-import com.trajan.android.game.Quado.helpers.MyColors;
+import com.trajan.android.game.Quado.entities.gui.ButtonPause;
+import com.trajan.android.game.Quado.entities.screen.ScreenDefeat;
+import com.trajan.android.game.Quado.entities.screen.ScreenMenu;
+import com.trajan.android.game.Quado.entities.screen.ScreenPause;
+import com.trajan.android.game.Quado.entities.screen.ScreenVictory;
+import com.trajan.android.game.Quado.helpers.*;
+import com.trajan.android.game.Quado.helpers.TouchEventListener;
 import com.trajan.android.game.Quado.levels.Level;
 import com.trajan.android.game.Quado.levels.LevelList;
 import com.trajan.android.game.Quado.components.*;
@@ -68,7 +72,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
 
     // Listeners
-    private List<MyTouchEventListener> touchEventListeners;
+    private List<TouchEventListener> touchEventListeners;
     private List<MyUpdateEventListener> updateEventListeners;
 
     // Elements
@@ -113,7 +117,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        for (MyTouchEventListener listener : touchEventListeners) {
+        for (TouchEventListener listener : touchEventListeners) {
             listener.handleTouchEvent(this, event);
         }
         return true;
@@ -135,7 +139,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
     private void initializeGame(Score victoryScore) {
 
-        touchEventListeners = new ArrayList<MyTouchEventListener>();
+        touchEventListeners = new ArrayList<TouchEventListener>();
         updateEventListeners = new ArrayList<MyUpdateEventListener>();
 
         elements = new Elements();
@@ -160,11 +164,11 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
             levelMap = levelList.getIntro();
 
         // Arcade
-        } else if (gameState.isStateArcade()) {
+        } else if (gameState.isStateArcade() || gameState.getPreviousState() == GameState.STATE_ARCADE) {
 
             score = new Score();
             gameState.setArcadeTimeStart(System.currentTimeMillis());
-            levelMap = levelList.getRandomLevel();
+            levelMap = levelList.getNextLevel();
 
         // Normal
         } else {
@@ -183,6 +187,9 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
             }
         }
 
+        gameState.setStateArcade();
+        gameState.setStateDefeat();
+
         posSizeCalc = new EntityPositionAndSizeCalculator(levelMap);
         level = new Level(levelMap, posSizeCalc);
 
@@ -193,7 +200,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         scoreDisplay = new ScoreDisplay(posSizeCalc.getScoreDisplay());
         screenDefeat = new ScreenDefeat(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_defeat);
         screenVictory = new ScreenVictory(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_victory);
-        screenPause = new ScreenPause(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_pause);
+        screenPause = new ScreenPause(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_settings);
         screenMenu = new ScreenMenu(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_menu);
 
         // Set score value
@@ -277,11 +284,11 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         return elements;
     }
 
-    public void addMyTouchEventListener(MyTouchEventListener listener) {
+    public void addMyTouchEventListener(TouchEventListener listener) {
         touchEventListeners.add(listener);
     }
 
-    public void removeMyTouchEventListener(MyTouchEventListener listener) {
+    public void removeMyTouchEventListener(TouchEventListener listener) {
         touchEventListeners.remove(listener);
     }
 
