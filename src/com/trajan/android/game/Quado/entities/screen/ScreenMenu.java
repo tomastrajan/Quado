@@ -19,12 +19,15 @@
 package com.trajan.android.game.Quado.entities.screen;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.TextView;
 import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.GameState;
@@ -35,6 +38,7 @@ import com.trajan.android.game.Quado.helpers.Dimensions;
 import com.trajan.android.game.Quado.helpers.MyColors;
 import com.trajan.android.game.Quado.helpers.TextSizeCalculator;
 import com.trajan.android.game.Quado.levels.Level;
+import com.trajan.android.game.Quado.R;
 
 public class ScreenMenu extends Screen {
 
@@ -50,7 +54,7 @@ public class ScreenMenu extends Screen {
     private Button buttonQuit;
     private Button buttonSettings;
 
-    public ScreenMenu(Dimensions dimensions, Context context, int messageId) {
+    public ScreenMenu(Dimensions dimensions, final Context context, int messageId) {
         super(dimensions, context, messageId);
 
         startHelper = START_DURATION;

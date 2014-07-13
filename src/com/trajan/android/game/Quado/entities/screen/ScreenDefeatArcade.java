@@ -33,6 +33,7 @@ import com.trajan.android.game.Quado.entities.gui.ButtonTouchListener;
 import com.trajan.android.game.Quado.entities.gui.Label;
 import com.trajan.android.game.Quado.entities.gui.Table;
 import com.trajan.android.game.Quado.helpers.*;
+import com.trajan.android.game.Quado.model.ScoreRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,18 +91,18 @@ public class ScreenDefeatArcade extends Screen {
         if (scores == null) {
             scores = new ArrayList<>();
 
-            List<String> scoresFromStorage;
+            List<ScoreRecord> scoresFromStorage;
             int i = 1;
             if (ext != null) {
                 scoresFromStorage = ext.getHighScore(ExtStorage.HIGH_SCORE_ARCADE_FILE);
-                for (String score : scoresFromStorage) {
+                for (ScoreRecord score : scoresFromStorage) {
                     List<String> scoreRow = new ArrayList<>();
                     scoreRow.add("" + i);
-                    scoreRow.add("Player");
-                    scoreRow.add(score.split("\\|")[1] + " s");
-                    scoreRow.add(score.split("\\|")[0]);
+                    scoreRow.add(score.getPlayerName());
+                    scoreRow.add(score.getInfo());
+                    scoreRow.add(score.getScore());
                     scores.add(scoreRow);
-                    if (score.split("\\|")[0].equals(actualScore)) {
+                    if (score.getScore().equals(actualScore) && ext.getSelectedPlayer().getUUID().equals(score.getPlayerUUID())) {
                         table.addHighlightedRow(i - 1);
                     }
                     i++;

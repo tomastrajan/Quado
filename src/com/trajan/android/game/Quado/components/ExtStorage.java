@@ -21,6 +21,10 @@ package com.trajan.android.game.Quado.components;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
+import com.trajan.android.game.Quado.Elements;
+import com.trajan.android.game.Quado.model.Player;
+import com.trajan.android.game.Quado.model.ScoreRecord;
 
 import java.io.*;
 import java.util.*;
@@ -35,12 +39,12 @@ public class ExtStorage implements Component {
     public static final String HIGH_SCORE_NORMAL_FILE = "high_score.txt";
     public static final String HIGH_SCORE_ARCADE_FILE = "high_score_arcade.txt";
     public static final String SETTINGS_FILE = "settings.txt";
+    public static final String PLAYERS_FILE = "players.txt";
 
     // Settings properties
     public static final String SETTINGS_THEME = "theme";
     public static final String SETTINGS_VOLUME = "volume";
-
-
+    public static final String SETTINGS_PLAYER = "player";
 
     private boolean isStorage = false;
     private Context context;
@@ -94,72 +98,60 @@ public class ExtStorage implements Component {
         }
     }
 
-    public void saveHighScore(int scorePoint, int scoreHelper, String fileName) {
+
+    public void saveHighScore(Integer scoreValue, Integer scoreInfo, String fileName) {
 
         try {
-
-            HashMap<Integer, Integer> highScore = new HashMap<Integer, Integer>();
-            highScore.put(scorePoint, scoreHelper);
-
-            List<Integer> sortHelper = new ArrayList<Integer>();
-
             File file = getOrCreateFile(fileName);
-            if (file != null) {
+            List<ScoreRecord> scores = getHighScore(fileName);
 
-                InputStream inputStream = new FileInputStream(file);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-
-                    int scoreValue = Integer.parseInt(line.split("\\|")[0]);
-                    int secondsValue = Integer.parseInt(line.split("\\|")[1]);
-
-                    highScore.put(scoreValue, secondsValue);
-                }
-
-
-                sortHelper.addAll(highScore.keySet());
-                Collections.sort(sortHelper);
-                if (sortHelper.size() > 10) {
-                    sortHelper.remove(0);
-                }
-
-                PrintWriter pw = new PrintWriter(new FileWriter(file, false));
-
-                for (int i = sortHelper.size() - 1; i >= 0; i--) {
-
-                    int key = sortHelper.get(i);
-                    int value = highScore.get(key);
-
-                    pw.println(key + "|" + value);
-                }
-
-                pw.flush();
-                pw.close();
-            } else {
+            Player player = getSelectedPlayer();
+            scores.add(new ScoreRecord(player.getUUID(), player.getName(), scoreInfo.toString(), scoreValue.toString()));
+            sortScores(scores);
+            if (scores.size() > 10) {
+                scores.remove(10);
             }
+
+            PrintWriter pw = new PrintWriter(new FileWriter(file, false));
+            for (ScoreRecord score : scores) {
+                pw.println(score.getPlayerUUID() + "|" + score.getPlayerName() + "|" + score.getInfo() + "|" + score.getScore());
+            }
+            pw.flush();
+            pw.close();
 
         } catch (IOException e) {
         }
     }
 
-    public List<String> getHighScore(String fileName) {
+    private void sortScores(List<ScoreRecord> scores) {
+        Collections.sort(scores, new Comparator<ScoreRecord>() {
+            @Override
+            public int compare(ScoreRecord s1, ScoreRecord s2) {
+                if (Integer.parseInt(s1.getScore()) < Integer.parseInt(s2.getScore())) {
+                    return 1;
+                } else if (Integer.parseInt(s1.getScore()) > Integer.parseInt(s2.getScore())) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+    }
+
+    public List<ScoreRecord> getHighScore(String fileName) {
 
         try {
 
-            List<String> highScoreList = new ArrayList<String>();
+            List<ScoreRecord> highScoreList = new ArrayList<ScoreRecord>();
 
             File highScoreFile = getOrCreateFile(fileName);
             InputStream inputStream = new FileInputStream(highScoreFile);
 
             if (inputStream != null) {
-
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    highScoreList.add(line);
+                    String[] cols = line.split("\\|");
+                    highScoreList.add(new ScoreRecord(cols[0], cols[1], cols[2], cols[3]));
                 }
                 return highScoreList;
             }
@@ -205,6 +197,10 @@ public class ExtStorage implements Component {
             properties.setProperty(SETTINGS_THEME, "0");
         }
 
+        if (properties.getProperty(SETTINGS_PLAYER) == null) {
+            properties.setProperty(SETTINGS_PLAYER,  UUID.randomUUID().toString() + "|Change me!");
+        }
+
 
         try {
             // Save default settings
@@ -229,6 +225,61 @@ public class ExtStorage implements Component {
         } catch (IOException e) {
         }
     }
+    public void createNewPlayer(String playerName) {
 
+        try {
+            File file = getOrCreateFile(PLAYERS_FILE);
+            if (file != null) {
+                PrintWriter pw = new PrintWriter(new FileWriter(file, true));
+                playerName.replace("|", "");
+                String player = UUID.randomUUID().toString() + "|" + playerName;
+                pw.println(player);
+                pw.flush();
+                pw.close();
 
+                saveSettings(SETTINGS_PLAYER, player);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Create new player failed: " + e.getMessage());
+        }
+    }
+
+    public Player getSelectedPlayer() {
+        String player = getSettings().getProperty(ExtStorage.SETTINGS_PLAYER);
+        return new Player(player.split("\\|")[0], player.split("\\|")[1]);
+    }
+
+    public Player getNextPlayer(Player currentPlayer) {
+        try {
+
+            List<Player> players = new ArrayList<Player>();
+
+            File playersFile = getOrCreateFile(PLAYERS_FILE);
+            InputStream inputStream = new FileInputStream(playersFile);
+
+            if (inputStream != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    players.add(new Player(line.split("\\|")[0], line.split("\\|")[1]));
+                }
+
+                for (int i = 0; i < players.size(); i++) {
+                    if (players.get(i).getUUID().equals(currentPlayer.getUUID())) {
+                        if ((i + 1) < players.size()) {
+                            return players.get((i + 1));
+                        } else {
+                            return players.get(0);
+                        }
+                    }
+                }
+
+            }
+        } catch (IOException e) {
+            Log.d(TAG, "Get next player failed: " + e.getMessage());
+        }
+
+        return null;
+    }
 }

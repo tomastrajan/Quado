@@ -18,6 +18,7 @@ import com.trajan.android.game.Quado.helpers.Dimensions;
 import com.trajan.android.game.Quado.helpers.MyColors;
 import com.trajan.android.game.Quado.helpers.TextSizeCalculator;
 import com.trajan.android.game.Quado.levels.LevelList;
+import com.trajan.android.game.Quado.model.ScoreRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,24 +76,20 @@ public class ScreenDefeatNormal extends Screen {
 
     private void initScore(MainGamePanel game) {
         ExtStorage ext = (ExtStorage) game.getElements().getComponent(Elements.EXTERNAL_STORAGE_PROVIDER);
-        String actualScore = String.valueOf(((Score) game.getElements().getComponent(Elements.SCORE)).getScore());
         if (scores == null) {
             scores = new ArrayList<>();
 
-            List<String> scoresFromStorage;
+            List<ScoreRecord> scoresFromStorage;
             int i = 1;
             if (ext != null) {
                 scoresFromStorage = ext.getHighScore(ExtStorage.HIGH_SCORE_NORMAL_FILE);
-                for (String score : scoresFromStorage) {
+                for (ScoreRecord score : scoresFromStorage) {
                     List<String> scoreRow = new ArrayList<>();
                     scoreRow.add("" + i);
-                    scoreRow.add("Player");
-                    scoreRow.add(score.split("\\|")[1] + "");
-                    scoreRow.add(score.split("\\|")[0]);
+                    scoreRow.add(score.getPlayerName());
+                    scoreRow.add(score.getInfo() + ".");
+                    scoreRow.add(score.getScore());
                     scores.add(scoreRow);
-                    if (score.split("\\|")[0].equals(actualScore)) {
-                        table.addHighlightedRow(i - 1);
-                    }
                     i++;
                 }
             }

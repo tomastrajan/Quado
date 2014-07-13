@@ -18,11 +18,11 @@ public abstract class Screen extends BasicEntity implements TouchEventListener {
 
     protected String message;
 
-    protected int dCanvasHeight;
-    protected int dCanvasWidth;
-    protected int dContainerWidth;
-    protected int dMargin;
-    protected int dButtonHeight;
+    protected final int dCanvasHeight;
+    protected final int dCanvasWidth;
+    protected final int dContainerWidth;
+    protected final int dMargin;
+    protected final int dButtonHeight;
 
 
     protected Screen(Dimensions dimensions, Context context,  int messageId) {
