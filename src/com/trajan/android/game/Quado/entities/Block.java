@@ -20,7 +20,6 @@
 package com.trajan.android.game.Quado.entities;
 
 import android.graphics.*;
-import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.BlockCounter;
 import com.trajan.android.game.Quado.components.GameState;
@@ -62,10 +61,10 @@ public class Block extends BasicEntity {
 
             if (hitPoints == 0) {
                 paint.setColor(MyColors.getBlockRemovedColor());
-                paint.setAlpha(MyColors.getAlphaAlmostTransparent());
+                paint.setAlpha(MyColors.getAlpha());
             }
         } else {
-            paint.setAlpha(MyColors.getAlphaAlmostTransparent());
+            paint.setAlpha(MyColors.getAlpha());
         }
 
         canvas.clipRect(blockRectangle, Region.Op.REPLACE);

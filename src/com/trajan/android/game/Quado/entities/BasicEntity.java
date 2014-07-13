@@ -21,6 +21,7 @@ package com.trajan.android.game.Quado.entities;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.GameState;
 import com.trajan.android.game.Quado.helpers.Dimensions;
@@ -39,12 +40,29 @@ public abstract class BasicEntity implements Entity {
 
     protected Paint paint;
 
+    protected BasicEntity() {
+        this.paint = new Paint();
+    }
+
     protected BasicEntity(Dimensions dimensions) {
+        this.paint = new Paint();
         this.x = dimensions.getX();
         this.y = dimensions.getY();
         this.width = dimensions.getWidth();
         this.height = dimensions.getHeight();
-        this.paint = new Paint();
+    }
+
+    @Override
+    public void setDimensions(Dimensions dimensions) {
+        this.x = dimensions.getX();
+        this.y = dimensions.getY();
+        this.width = dimensions.getWidth();
+        this.height = dimensions.getHeight();
+    }
+
+    @Override
+    public Rect getRect() {
+        return new Rect(x - width / 2, y - height / 2, x + width / 2, y + height / 2);
     }
 
     @Override

@@ -57,9 +57,11 @@ public class Ball extends BasicEntity implements MyUpdateEventListener {
     @Override
     public void render(MainGamePanel game, Canvas canvas, GameState gameState) {
 
-        paint.setColor(MyColors.getBallColor());
-        canvas.clipRect(0,0, canvas.getWidth(), canvas.getHeight(), Region.Op.REPLACE);
-        canvas.drawRect(x - width / 2, y - height / 2, x + width / 2, y + height / 2, paint);
+        if (gameState.isGameStateAnyActiveState()) {
+            paint.setColor(MyColors.getBallColor());
+            canvas.clipRect(0, 0, canvas.getWidth(), canvas.getHeight(), Region.Op.REPLACE);
+            canvas.drawRect(x - width / 2, y - height / 2, x + width / 2, y + height / 2, paint);
+        }
 
 //        Paint helperPiant = new Paint();
 //        helperPiant.setColor(Color.parseColor("#ff0000"));

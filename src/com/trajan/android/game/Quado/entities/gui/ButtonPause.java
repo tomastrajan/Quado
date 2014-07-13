@@ -17,18 +17,17 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/gpl.html
  */
 
-package com.trajan.android.game.Quado.entities;
+package com.trajan.android.game.Quado.entities.gui;
 
 import android.graphics.*;
 import android.view.MotionEvent;
 import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.GameState;
-import com.trajan.android.game.Quado.helpers.MyTouchEventListener;
-import com.trajan.android.game.Quado.helpers.Dimensions;
-import com.trajan.android.game.Quado.helpers.MyColors;
+import com.trajan.android.game.Quado.entities.BasicEntity;
+import com.trajan.android.game.Quado.helpers.*;
 
-public class ButtonPause extends BasicEntity implements MyTouchEventListener {
+public class ButtonPause extends BasicEntity implements TouchEventListener {
 
     private static final String TAG = ButtonPause.class.getSimpleName();
 

@@ -20,12 +20,13 @@
 package com.trajan.android.game.Quado.components;
 
 import android.graphics.*;
-import android.util.Log;
 import com.trajan.android.game.Quado.DeviceInfo;
 import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.entities.*;
 import com.trajan.android.game.Quado.entities.effects.ScoreDisplayHitEffect;
+import com.trajan.android.game.Quado.entities.screen.ScreenDefeatArcade;
+import com.trajan.android.game.Quado.entities.screen.ScreenDefeatNormal;
 import com.trajan.android.game.Quado.helpers.MyUpdateEventListener;
 import com.trajan.android.game.Quado.helpers.Dimensions;
 
@@ -514,9 +515,12 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
                         int seconds = (int) (gameState.getArcadeTimeEnd() - gameState.getArcadeTimeStart()) / 1000;
 
                         storage.saveHighScore(scoreValue, seconds, ExtStorage.HIGH_SCORE_ARCADE_FILE);
+                        ((ScreenDefeatArcade) game.getElements().getEntity(Elements.SCREEN_DEFEAT_ARCADE)).resetScore();
+                        gameState.setStateDefeatArcade();
+                    } else {
+                        ((ScreenDefeatNormal) game.getElements().getEntity(Elements.SCREEN_DEFEAT_NORMAL)).resetScore();
+                        gameState.setStateDefeatNormal();
                     }
-
-                    gameState.setStateDefeat();
                 }
             }
 

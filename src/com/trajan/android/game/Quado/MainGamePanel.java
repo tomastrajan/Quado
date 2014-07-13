@@ -25,9 +25,10 @@ import android.graphics.PixelFormat;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import com.trajan.android.game.Quado.helpers.MyTouchEventListener;
-import com.trajan.android.game.Quado.helpers.MyUpdateEventListener;
-import com.trajan.android.game.Quado.helpers.MyColors;
+import com.trajan.android.game.Quado.entities.gui.ButtonPause;
+import com.trajan.android.game.Quado.entities.screen.*;
+import com.trajan.android.game.Quado.helpers.*;
+import com.trajan.android.game.Quado.helpers.TouchEventListener;
 import com.trajan.android.game.Quado.levels.Level;
 import com.trajan.android.game.Quado.levels.LevelList;
 import com.trajan.android.game.Quado.components.*;
@@ -51,9 +52,10 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
     private Ball ball;
     private ButtonPause buttonPause;
     private ScoreDisplay scoreDisplay;
-    private ScreenDefeat screenDefeat;
+    private ScreenDefeatArcade screenDefeatArcade;
+    private ScreenDefeatNormal screenDefeatNormal;
     private ScreenVictory screenVictory;
-    private ScreenPause screenPause;
+    private ScreenSettings screenSettings;
     private ScreenMenu screenMenu;
 
     // Game components
@@ -68,7 +70,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
 
     // Listeners
-    private List<MyTouchEventListener> touchEventListeners;
+    private List<TouchEventListener> touchEventListeners;
     private List<MyUpdateEventListener> updateEventListeners;
 
     // Elements
@@ -113,7 +115,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        for (MyTouchEventListener listener : touchEventListeners) {
+        for (TouchEventListener listener : touchEventListeners) {
             listener.handleTouchEvent(this, event);
         }
         return true;
@@ -135,7 +137,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
     private void initializeGame(Score victoryScore) {
 
-        touchEventListeners = new ArrayList<MyTouchEventListener>();
+        touchEventListeners = new ArrayList<TouchEventListener>();
         updateEventListeners = new ArrayList<MyUpdateEventListener>();
 
         elements = new Elements();
@@ -160,11 +162,11 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
             levelMap = levelList.getIntro();
 
         // Arcade
-        } else if (gameState.isStateArcade()) {
+        } else if (gameState.isStateArcade() || gameState.getPreviousState() == GameState.STATE_ARCADE) {
 
             score = new Score();
             gameState.setArcadeTimeStart(System.currentTimeMillis());
-            levelMap = levelList.getRandomLevel();
+            levelMap = levelList.getNextLevel();
 
         // Normal
         } else {
@@ -183,6 +185,9 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
             }
         }
 
+//        gameState.setStateArcade();
+//        gameState.setStateDefeat();
+
         posSizeCalc = new EntityPositionAndSizeCalculator(levelMap);
         level = new Level(levelMap, posSizeCalc);
 
@@ -191,9 +196,10 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         ball = new Ball(posSizeCalc.getBall(), new Speed(gameState.isStateArcade()));
         buttonPause = new ButtonPause(posSizeCalc.getCloseButton());
         scoreDisplay = new ScoreDisplay(posSizeCalc.getScoreDisplay());
-        screenDefeat = new ScreenDefeat(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_defeat);
+        screenDefeatArcade = new ScreenDefeatArcade(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_defeat_arcade);
+        screenDefeatNormal = new ScreenDefeatNormal(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_defeat_normal);
         screenVictory = new ScreenVictory(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_victory);
-        screenPause = new ScreenPause(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_pause);
+        screenSettings = new ScreenSettings(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_settings);
         screenMenu = new ScreenMenu(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_menu);
 
         // Set score value
@@ -207,9 +213,10 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         elements.addEntity(Elements.BALL, ball);
         elements.addEntity(Elements.BUTTON_CLOSE, buttonPause);
         elements.addEntity(Elements.SCORE_DISPLAY, scoreDisplay);
-        elements.addEntity(Elements.SCREEN_DEFEAT, screenDefeat);
+        elements.addEntity(Elements.SCREEN_DEFEAT_ARCADE, screenDefeatArcade);
+        elements.addEntity(Elements.SCREEN_DEFEAT_NORMAL, screenDefeatNormal);
         elements.addEntity(Elements.SCREEN_VICTORY, screenVictory);
-        elements.addEntity(Elements.SCREEN_PAUSE, screenPause);
+        elements.addEntity(Elements.SCREEN_SETTINGS, screenSettings);
         elements.addEntity(Elements.SCREEN_MENU, screenMenu);
 
         // Add components to elements
@@ -225,8 +232,9 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         // Add MyTouchEventListeners
         addMyTouchEventListener(bar);
         addMyTouchEventListener(buttonPause);
-        addMyTouchEventListener(screenDefeat);
-        addMyTouchEventListener(screenPause);
+        addMyTouchEventListener(screenDefeatArcade);
+        addMyTouchEventListener(screenDefeatNormal);
+        addMyTouchEventListener(screenSettings);
         addMyTouchEventListener(screenVictory);
         addMyTouchEventListener(screenMenu);
 
@@ -277,11 +285,11 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         return elements;
     }
 
-    public void addMyTouchEventListener(MyTouchEventListener listener) {
+    public void addMyTouchEventListener(TouchEventListener listener) {
         touchEventListeners.add(listener);
     }
 
-    public void removeMyTouchEventListener(MyTouchEventListener listener) {
+    public void removeMyTouchEventListener(TouchEventListener listener) {
         touchEventListeners.remove(listener);
     }
 

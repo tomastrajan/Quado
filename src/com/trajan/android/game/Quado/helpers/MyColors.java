@@ -60,7 +60,7 @@ public class MyColors {
     private static int blockColor4;
 
     // Alphas
-    private static int alphaAlmostTransparent;
+    private static int alpha;
 
     // Filters
     private static ColorFilter filterGui;
@@ -107,7 +107,7 @@ public class MyColors {
             blockColor4 = Color.parseColor("#1065c5");
 
             // Alphas
-            alphaAlmostTransparent = 15;
+            alpha = 15;
 
             // Filters
             int currentApiVersion = android.os.Build.VERSION.SDK_INT;
@@ -149,7 +149,7 @@ public class MyColors {
             blockColor4 = Color.parseColor("#ffffff");
 
             // Alphas
-            alphaAlmostTransparent = 25;
+            alpha = 25;
 
             // Filters
             int currentApiVersion = android.os.Build.VERSION.SDK_INT;
@@ -191,7 +191,7 @@ public class MyColors {
             blockColor4 = Color.parseColor("#000000");
 
             // Alphas
-            alphaAlmostTransparent = 15;
+            alpha = 15;
 
             // Filters
             int currentApiVersion = android.os.Build.VERSION.SDK_INT;
@@ -233,7 +233,7 @@ public class MyColors {
             blockColor4 = Color.parseColor("#f7cb94");
 
             // Alphas
-            alphaAlmostTransparent = 30;
+            alpha = 30;
 
             // Filters
             int currentApiVersion = android.os.Build.VERSION.SDK_INT;
@@ -275,7 +275,7 @@ public class MyColors {
             blockColor4 = Color.parseColor("#fff199");
 
             // Alphas
-            alphaAlmostTransparent = 30;
+            alpha = 30;
 
             // Filters
             int currentApiVersion = android.os.Build.VERSION.SDK_INT;
@@ -317,7 +317,7 @@ public class MyColors {
             blockColor4 = Color.parseColor("#99ffac");
 
             // Alphas
-            alphaAlmostTransparent = 30;
+            alpha = 30;
 
             // Filters
             int currentApiVersion = android.os.Build.VERSION.SDK_INT;
@@ -359,7 +359,7 @@ public class MyColors {
             blockColor4 = Color.parseColor("#cc2b24");
 
             // Alphas
-            alphaAlmostTransparent = 30;
+            alpha = 30;
 
             // Filters
             int currentApiVersion = android.os.Build.VERSION.SDK_INT;
@@ -411,8 +411,8 @@ public class MyColors {
         return blockRemovedColor;
     }
 
-    public static int getAlphaAlmostTransparent() {
-        return alphaAlmostTransparent;
+    public static int getAlpha() {
+        return alpha;
     }
 
     public static int getBlockColorByConstant(int colorConstant) {

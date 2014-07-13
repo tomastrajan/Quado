@@ -25,8 +25,9 @@ public class GameState implements Component {
     public static final int STATE_GAME = 1;
     public static final int STATE_ARCADE = 2;
     public static final int STATE_VICTORY = 3;
-    public static final int STATE_DEFEAT = 4;
-    public static final int STATE_PAUSE = 5;
+    public static final int STATE_DEFEAT_ARCADE = 4;
+    public static final int STATE_DEFEAT_NORMAL = 6;
+    public static final int STATE_PAUSE = 7;
 
     private static int previousState = STATE_MENU;
     private static int currentState = STATE_MENU;
@@ -36,6 +37,10 @@ public class GameState implements Component {
 
     public GameState() {
 
+    }
+
+    public static void setPreviousState(int previousState) {
+        GameState.previousState = previousState;
     }
 
     private void setNewState(int newState) {
@@ -61,8 +66,12 @@ public class GameState implements Component {
         setNewState(STATE_VICTORY);
     }
 
-    public void setStateDefeat() {
-        setNewState(STATE_DEFEAT);
+    public void setStateDefeatArcade() {
+        setNewState(STATE_DEFEAT_ARCADE);
+    }
+
+    public void setStateDefeatNormal() {
+        setNewState(STATE_DEFEAT_NORMAL);
     }
 
     public void setStatePause() {
@@ -85,8 +94,16 @@ public class GameState implements Component {
         return currentState == STATE_VICTORY;
     }
 
-    public boolean isStateDefeat() {
-        return currentState == STATE_DEFEAT;
+    public boolean isStateDefeatArcade() {
+        return currentState == STATE_DEFEAT_ARCADE;
+    }
+
+    public boolean isStateDefeatNormal() {
+        return currentState == STATE_DEFEAT_NORMAL;
+    }
+
+    public boolean isAnyDefeatState() {
+        return currentState == STATE_DEFEAT_NORMAL || currentState == STATE_DEFEAT_ARCADE;
     }
 
     public boolean isStatePause() {
@@ -95,6 +112,14 @@ public class GameState implements Component {
 
     public boolean isStateArcade() {
         return currentState == STATE_ARCADE;
+    }
+
+    public boolean isGameStateAnyActiveState() {
+        if (isStateGame() || isStateArcade() || isStateMenu()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static void resetGameState() {

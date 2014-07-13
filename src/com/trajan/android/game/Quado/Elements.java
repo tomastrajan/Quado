@@ -32,10 +32,11 @@ public class Elements {
     public static final int BUTTON_CLOSE = 2;
     public static final int BUTTON_RETRY = 3;
     public static final int SCORE_DISPLAY = 4;
-    public static final int SCREEN_DEFEAT = 5;
-    public static final int SCREEN_VICTORY = 6;
-    public static final int SCREEN_PAUSE = 7;
-    public static final int SCREEN_MENU = 8;
+    public static final int SCREEN_DEFEAT_ARCADE = 5;
+    public static final int SCREEN_DEFEAT_NORMAL = 6;
+    public static final int SCREEN_VICTORY = 7;
+    public static final int SCREEN_SETTINGS = 8;
+    public static final int SCREEN_MENU = 9;
 
     // Game component
     public static final int EXTERNAL_STORAGE_PROVIDER = 1001;
