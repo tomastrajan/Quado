@@ -25,6 +25,10 @@ import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.*;
 import com.trajan.android.game.Quado.entities.Block;
 import com.trajan.android.game.Quado.helpers.MyUpdateEventListener;
+import com.trajan.android.game.Quado.model.GameMode;
+import com.trajan.android.game.Quado.model.Player;
+import com.trajan.android.game.Quado.rest.DefaultRestService;
+import com.trajan.android.game.Quado.rest.dto.ScoreDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,18 +122,23 @@ public class Level implements MyUpdateEventListener {
             GameState gameState = (GameState) game.getElements().getComponent(Elements.GAME_STATE);
             Score score = (Score) game.getElements().getComponent(Elements.SCORE);
 
-            if (gameState.isStateGame()) {
+            if (gameState.isStateNormal()) {
 
                 // Set game state to victory
-                gameState.setStateVictory();
+                gameState.setStateNormalVictory();
 
                 // Get actual score
                 int scoreValue = score.getScore();
                 int levelId = LevelList.getLevelId() + 1;
 
                 // Save new high score
-                ExtStorage extStorage = (ExtStorage) game.getElements().getComponent(Elements.EXTERNAL_STORAGE_PROVIDER);
-                extStorage.saveHighScore(scoreValue, levelId, ExtStorage.HIGH_SCORE_NORMAL_FILE);
+                LocalPersistenceService lps = game.getLocalPersistenceService();
+                lps.saveHighScore(scoreValue, levelId, LocalPersistenceService.HIGH_SCORE_NORMAL_FILE);
+
+                DefaultRestService rest = game.getRest();
+                Player player = lps.getSelectedPlayer();
+                rest.createOrUpdateScore(new ScoreDto(player.getUUID(), player.getName(),
+                        GameMode.NORMAL.name().toLowerCase(), scoreValue, null, levelId));
             }
         }
     }

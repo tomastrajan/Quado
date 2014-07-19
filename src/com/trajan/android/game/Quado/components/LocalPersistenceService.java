@@ -22,16 +22,15 @@ package com.trajan.android.game.Quado.components;
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
-import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.model.Player;
 import com.trajan.android.game.Quado.model.ScoreRecord;
 
 import java.io.*;
 import java.util.*;
 
-public class ExtStorage implements Component {
+public class LocalPersistenceService implements Component {
 
-    private static final String TAG = ExtStorage.class.getSimpleName();
+    private static final String TAG = LocalPersistenceService.class.getSimpleName();
 
     private static final String FILE_PATH = "/Android/data/com.trajan.android.games.Quado/files/";
 
@@ -49,7 +48,7 @@ public class ExtStorage implements Component {
     private boolean isStorage = false;
     private Context context;
 
-    public ExtStorage(Context context) {
+    public LocalPersistenceService(Context context) {
         this.context = context;
         checkStorage();
     }
@@ -246,8 +245,8 @@ public class ExtStorage implements Component {
     }
 
     public Player getSelectedPlayer() {
-        String player = getSettings().getProperty(ExtStorage.SETTINGS_PLAYER);
-        return new Player(player.split("\\|")[0], player.split("\\|")[1]);
+        String player = getSettings().getProperty(LocalPersistenceService.SETTINGS_PLAYER);
+        return new Player(player);
     }
 
     public Player getNextPlayer(Player currentPlayer) {
@@ -262,16 +261,19 @@ public class ExtStorage implements Component {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    players.add(new Player(line.split("\\|")[0], line.split("\\|")[1]));
+                    players.add(new Player(line));
                 }
 
                 for (int i = 0; i < players.size(); i++) {
                     if (players.get(i).getUUID().equals(currentPlayer.getUUID())) {
+                        Player selectedPlayer;
                         if ((i + 1) < players.size()) {
-                            return players.get((i + 1));
+                            selectedPlayer = players.get((i + 1));
                         } else {
-                            return players.get(0);
+                            selectedPlayer = players.get(0);
                         }
+                        saveSettings(SETTINGS_PLAYER, selectedPlayer.toPersistenceString());
+                        return selectedPlayer;
                     }
                 }
 

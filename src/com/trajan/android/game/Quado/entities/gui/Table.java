@@ -35,7 +35,7 @@ public class Table extends BasicEntity {
         this.headers = headers;
         this.rows = rows;
 
-        rowHeight = (int) (DeviceInfo.INSTANCE.getSurfaceHeight() * 0.045f);
+        rowHeight = (int) (DeviceInfo.INSTANCE.getSurfaceHeight() * 0.04f);
         containerLeft = margin;
         containerRight = margin + containerWidth;
     }

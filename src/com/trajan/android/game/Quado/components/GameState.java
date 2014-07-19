@@ -22,12 +22,12 @@ public class GameState implements Component {
 
 
     public static final int STATE_MENU = 0;
-    public static final int STATE_GAME = 1;
+    public static final int STATE_NORMAL = 1;
     public static final int STATE_ARCADE = 2;
-    public static final int STATE_VICTORY = 3;
-    public static final int STATE_DEFEAT_ARCADE = 4;
-    public static final int STATE_DEFEAT_NORMAL = 6;
-    public static final int STATE_PAUSE = 7;
+    public static final int STATE_NORMAL_VICTORY = 3;
+    public static final int STATE_NORMAL_DEFEAT = 4;
+    public static final int STATE_ARCADE_DEFEAT = 5;
+    public static final int STATE_PAUSE = 6;
 
     private static int previousState = STATE_MENU;
     private static int currentState = STATE_MENU;
@@ -58,20 +58,20 @@ public class GameState implements Component {
         setNewState(STATE_MENU);
     }
 
-    public void setStateGame() {
-        setNewState(STATE_GAME);
+    public void setStateNormal() {
+        setNewState(STATE_NORMAL);
     }
 
-    public void setStateVictory() {
-        setNewState(STATE_VICTORY);
+    public void setStateNormalVictory() {
+        setNewState(STATE_NORMAL_VICTORY);
     }
 
-    public void setStateDefeatArcade() {
-        setNewState(STATE_DEFEAT_ARCADE);
+    public void setStateNormalDefeat() {
+        setNewState(STATE_NORMAL_DEFEAT);
     }
 
-    public void setStateDefeatNormal() {
-        setNewState(STATE_DEFEAT_NORMAL);
+    public void setStateArcadeDefeat() {
+        setNewState(STATE_ARCADE_DEFEAT);
     }
 
     public void setStatePause() {
@@ -86,24 +86,24 @@ public class GameState implements Component {
         return currentState == STATE_MENU;
     }
 
-    public boolean isStateGame() {
-        return currentState == STATE_GAME;
+    public boolean isStateNormal() {
+        return currentState == STATE_NORMAL;
     }
 
-    public boolean isStateVictory() {
-        return currentState == STATE_VICTORY;
+    public boolean isStateNormalVictory() {
+        return currentState == STATE_NORMAL_VICTORY;
     }
 
-    public boolean isStateDefeatArcade() {
-        return currentState == STATE_DEFEAT_ARCADE;
+    public boolean isStateArcadeDefeat() {
+        return currentState == STATE_ARCADE_DEFEAT;
     }
 
-    public boolean isStateDefeatNormal() {
-        return currentState == STATE_DEFEAT_NORMAL;
+    public boolean isStateNormalDefeat() {
+        return currentState == STATE_NORMAL_DEFEAT;
     }
 
     public boolean isAnyDefeatState() {
-        return currentState == STATE_DEFEAT_NORMAL || currentState == STATE_DEFEAT_ARCADE;
+        return currentState == STATE_NORMAL_DEFEAT || currentState == STATE_ARCADE_DEFEAT;
     }
 
     public boolean isStatePause() {
@@ -115,7 +115,7 @@ public class GameState implements Component {
     }
 
     public boolean isGameStateAnyActiveState() {
-        if (isStateGame() || isStateArcade() || isStateMenu()) {
+        if (isStateNormal() || isStateArcade() || isStateMenu()) {
             return true;
         } else {
             return false;

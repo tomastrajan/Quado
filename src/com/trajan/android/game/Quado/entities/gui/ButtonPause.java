@@ -40,7 +40,7 @@ public class ButtonPause extends BasicEntity implements TouchEventListener {
 
         setzIndex(2);
 
-        if (gameState.isStateGame() || gameState.isStateArcade()) {
+        if (gameState.isStateNormal() || gameState.isStateArcade()) {
 
             Paint paint = new Paint();
             paint.setColor(MyColors.getGuiElementColor());
@@ -84,7 +84,7 @@ public class ButtonPause extends BasicEntity implements TouchEventListener {
 
                 GameState gameState = (GameState) game.getElements().getComponent(Elements.GAME_STATE);
 
-                if (gameState.isStateGame() || gameState.isStateArcade()) {
+                if (gameState.isStateNormal() || gameState.isStateArcade()) {
                     gameState.setStatePause();
                 }
             }

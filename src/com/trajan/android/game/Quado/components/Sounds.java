@@ -37,23 +37,23 @@ public class Sounds implements Component {
 
     private float volume;
 
-    private ExtStorage resExtStorage;
+    private LocalPersistenceService resLocalPersistenceService;
 
-    public Sounds(Context context, ExtStorage resExtStorage) {
+    public Sounds(Context context, LocalPersistenceService resLocalPersistenceService) {
 
         sounds = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
         soundHit = sounds.load(context, R.raw.hit, 1);
         soundBarHit = sounds.load(context, R.raw.bar, 1);
         soundLastHit = sounds.load(context, R.raw.hit_last, 1);
 
-        this.resExtStorage = resExtStorage;
+        this.resLocalPersistenceService = resLocalPersistenceService;
 
         initializeVolume();
     }
 
     private void initializeVolume() {
 
-        Properties properties = this.resExtStorage.getSettings();
+        Properties properties = this.resLocalPersistenceService.getSettings();
         if (properties != null && !properties.isEmpty() && properties.getProperty("volume") != null) {
             volume = Float.parseFloat(properties.getProperty("volume"));
         }
@@ -86,8 +86,8 @@ public class Sounds implements Component {
         volume = newVolume;
 
         // Save volume to external settings
-        if (resExtStorage != null) {
-            resExtStorage.saveSettings("volume", String.valueOf(volume));
+        if (resLocalPersistenceService != null) {
+            resLocalPersistenceService.saveSettings("volume", String.valueOf(volume));
         }
 
     }

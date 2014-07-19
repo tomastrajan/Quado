@@ -32,9 +32,8 @@ public class Elements {
     public static final int BUTTON_CLOSE = 2;
     public static final int BUTTON_RETRY = 3;
     public static final int SCORE_DISPLAY = 4;
-    public static final int SCREEN_DEFEAT_ARCADE = 5;
-    public static final int SCREEN_DEFEAT_NORMAL = 6;
-    public static final int SCREEN_VICTORY = 7;
+    public static final int SCREEN_ARCADE_END = 5;
+    public static final int SCREEN_NORMAL_END = 6;
     public static final int SCREEN_SETTINGS = 8;
     public static final int SCREEN_MENU = 9;
 

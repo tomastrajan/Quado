@@ -100,10 +100,10 @@ public class Ball extends BasicEntity implements MyUpdateEventListener {
 
             GameState gameState = (GameState) game.getElements().getComponent(Elements.GAME_STATE);
 
-            if (gameState.isStateGame() || gameState.isStateMenu() || gameState.isStateArcade()) {
+            if (gameState.isStateNormal() || gameState.isStateMenu() || gameState.isStateArcade()) {
 
                 // Update speed for menu and normal
-                if (gameState.isStateGame() || gameState.isStateMenu()) {
+                if (gameState.isStateNormal() || gameState.isStateMenu()) {
                     float ratio = game.getElements().getLevel().getBlockCounter().getRemainingToTotalBlockCountRatio();
                     speed.updateSpeedMultiplicator(ratio);
                 }

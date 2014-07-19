@@ -1,0 +1,51 @@
+package com.trajan.android.game.Quado.rest;
+
+import com.trajan.android.game.Quado.MainGamePanel;
+import com.trajan.android.game.Quado.model.GameMode;
+import com.trajan.android.game.Quado.rest.dto.ScoreDto;
+import retrofit.RestAdapter;
+
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * @author Tomas Trajan
+ * @creaded 2014-07-19
+ */
+public class DefaultRestService {
+
+    private MainGamePanel game;
+    private RestAdapter restAdapter;
+    private ScoreRestService scoreService;
+
+    public DefaultRestService(MainGamePanel game) {
+        this.game = game;
+        restAdapter = new RestAdapter.Builder()
+                .setEndpoint("http://192.168.0.105:1337")
+                .build();
+        scoreService = restAdapter.create(ScoreRestService.class);
+    }
+
+
+
+    public List<ScoreDto> findTopTenScores(GameMode gameMode) {
+        if (game.isNetworkAvailable()) {
+            return scoreService.findTopTenScores(gameMode.name().toLowerCase());
+        }
+        return Collections.emptyList();
+    }
+
+    public List<ScoreDto> findScoresForPlayer(GameMode gameMode, String playerUuid) {
+        if (game.isNetworkAvailable()) {
+            return scoreService.findScoresForPlayer(gameMode.name().toLowerCase(), playerUuid);
+        }
+        return Collections.emptyList();
+    }
+
+    public void createOrUpdateScore(ScoreDto score) {
+        if (game.isNetworkAvailable()) {
+            scoreService.createOrUpdateScore(score);
+        }
+    }
+
+}

@@ -22,6 +22,8 @@ package com.trajan.android.game.Quado;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -34,6 +36,7 @@ import com.trajan.android.game.Quado.levels.LevelList;
 import com.trajan.android.game.Quado.components.*;
 import com.trajan.android.game.Quado.entities.*;
 import com.trajan.android.game.Quado.levels.LevelMap;
+import com.trajan.android.game.Quado.rest.DefaultRestService;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -52,9 +55,8 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
     private Ball ball;
     private ButtonPause buttonPause;
     private ScoreDisplay scoreDisplay;
-    private ScreenDefeatArcade screenDefeatArcade;
-    private ScreenDefeatNormal screenDefeatNormal;
-    private ScreenVictory screenVictory;
+    private ScreenArcadeEnd screenArcadeEnd;
+    private ScreenNormalEnd screenNormalEnd;
     private ScreenSettings screenSettings;
     private ScreenMenu screenMenu;
 
@@ -65,7 +67,8 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
     private CollisionDetector collisionDetector;
     private RenderHelper renderHelper;
     private EntityPositionAndSizeCalculator posSizeCalc;
-    private ExtStorage resExtStorage;
+    private LocalPersistenceService resLocalPersistenceService;
+    private DefaultRestService rest;
     private Sounds resSounds;
 
 
@@ -87,8 +90,8 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         thread = new MainThread(getHolder(), this);
 
         // Initialize resources
-        resExtStorage = new ExtStorage(context);
-        resSounds = new Sounds(context, resExtStorage);
+        resLocalPersistenceService = new LocalPersistenceService(context);
+        resSounds = new Sounds(context, resLocalPersistenceService);
 
     }
 
@@ -137,13 +140,15 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
     private void initializeGame(Score victoryScore) {
 
+        rest = new DefaultRestService(this);
+
         touchEventListeners = new ArrayList<TouchEventListener>();
         updateEventListeners = new ArrayList<MyUpdateEventListener>();
 
         elements = new Elements();
 
         // Initialize color theme
-        Properties settings = resExtStorage.getSettings();
+        Properties settings = resLocalPersistenceService.getSettings();
         MyColors.setColorTheme(Integer.parseInt(settings.getProperty("theme")));
 
         // Initialize game components
@@ -185,9 +190,6 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
             }
         }
 
-//        gameState.setStateArcade();
-//        gameState.setStateDefeat();
-
         posSizeCalc = new EntityPositionAndSizeCalculator(levelMap);
         level = new Level(levelMap, posSizeCalc);
 
@@ -196,9 +198,8 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         ball = new Ball(posSizeCalc.getBall(), new Speed(gameState.isStateArcade()));
         buttonPause = new ButtonPause(posSizeCalc.getCloseButton());
         scoreDisplay = new ScoreDisplay(posSizeCalc.getScoreDisplay());
-        screenDefeatArcade = new ScreenDefeatArcade(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_defeat_arcade);
-        screenDefeatNormal = new ScreenDefeatNormal(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_defeat_normal);
-        screenVictory = new ScreenVictory(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_victory);
+        screenArcadeEnd = new ScreenArcadeEnd(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_defeat_arcade);
+        screenNormalEnd = new ScreenNormalEnd(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_defeat_normal);
         screenSettings = new ScreenSettings(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_settings);
         screenMenu = new ScreenMenu(posSizeCalc.getFullCenterMessage(), getContext(), R.string.message_menu);
 
@@ -213,9 +214,8 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         elements.addEntity(Elements.BALL, ball);
         elements.addEntity(Elements.BUTTON_CLOSE, buttonPause);
         elements.addEntity(Elements.SCORE_DISPLAY, scoreDisplay);
-        elements.addEntity(Elements.SCREEN_DEFEAT_ARCADE, screenDefeatArcade);
-        elements.addEntity(Elements.SCREEN_DEFEAT_NORMAL, screenDefeatNormal);
-        elements.addEntity(Elements.SCREEN_VICTORY, screenVictory);
+        elements.addEntity(Elements.SCREEN_ARCADE_END, screenArcadeEnd);
+        elements.addEntity(Elements.SCREEN_NORMAL_END, screenNormalEnd);
         elements.addEntity(Elements.SCREEN_SETTINGS, screenSettings);
         elements.addEntity(Elements.SCREEN_MENU, screenMenu);
 
@@ -224,7 +224,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         elements.addComponent(Elements.SOUNDS, resSounds);
         elements.addComponent(Elements.RENDER_HELPER, renderHelper);
         elements.addComponent(Elements.GAME_STATE, gameState);
-        elements.addComponent(Elements.EXTERNAL_STORAGE_PROVIDER, resExtStorage);
+        elements.addComponent(Elements.EXTERNAL_STORAGE_PROVIDER, resLocalPersistenceService);
 
         // Add entities to render helper
         renderHelper.addGameEntities(elements);
@@ -232,10 +232,9 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         // Add MyTouchEventListeners
         addMyTouchEventListener(bar);
         addMyTouchEventListener(buttonPause);
-        addMyTouchEventListener(screenDefeatArcade);
-        addMyTouchEventListener(screenDefeatNormal);
+        addMyTouchEventListener(screenArcadeEnd);
+        addMyTouchEventListener(screenNormalEnd);
         addMyTouchEventListener(screenSettings);
-        addMyTouchEventListener(screenVictory);
         addMyTouchEventListener(screenMenu);
 
         // Add MyUpdateEventListeners
@@ -277,6 +276,18 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         }
     }
 
+    public DefaultRestService getRest() {
+        return rest;
+    }
+
+    public LocalPersistenceService getLocalPersistenceService() {
+        return resLocalPersistenceService;
+    }
+
+    public Score getScore() {
+        return score;
+    }
+
     public MainThread getThread() {
         return thread;
     }
@@ -299,5 +310,12 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
     public void removeMyUpdateEventListener(MyUpdateEventListener listener) {
         updateEventListeners.remove(listener);
+    }
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

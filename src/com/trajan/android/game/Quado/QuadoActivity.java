@@ -73,7 +73,7 @@ public class QuadoActivity extends Activity {
         super.onPause();
 
         GameState gameState = (GameState) game.getElements().getComponent(Elements.GAME_STATE);
-        if (gameState.isStateGame() || gameState.isStateArcade()) {
+        if (gameState.isStateNormal() || gameState.isStateArcade()) {
             gameState.setStatePause();
         }
 

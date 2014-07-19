@@ -42,7 +42,7 @@ public class Bar extends BasicEntity implements TouchEventListener, MyUpdateEven
 
         setzIndex(0);
 
-        if (gameState.isStateGame() || gameState.isStateMenu() || gameState.isStateArcade()) {
+        if (gameState.isStateNormal() || gameState.isStateMenu() || gameState.isStateArcade()) {
 
             paint.setColor(MyColors.getBarColor());
 
@@ -92,7 +92,7 @@ public class Bar extends BasicEntity implements TouchEventListener, MyUpdateEven
 
             GameState gameState = (GameState) game.getElements().getComponent(Elements.GAME_STATE);
 
-            if (gameState.isStateGame() || gameState.isStateArcade()) {
+            if (gameState.isStateNormal() || gameState.isStateArcade()) {
                 if (event.getAction() == MotionEvent.ACTION_MOVE) {
                     setX((int) event.getX());
                 }

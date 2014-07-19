@@ -22,8 +22,8 @@ import java.util.List;
  */
 public class Button extends BasicEntity implements TouchEventListener{
 
-    public static final int BUTTON_PRIMARY = 10;
-    public static final int BUTTON_SECONDARY = 11;
+    public static final int PRIMARY = 10;
+    public static final int SECONDARY = 11;
     public static final int BUTTON_1 = 0;
     public static final int BUTTON_2_1 = 1;
     public static final int BUTTON_2_2 = 2;
@@ -32,6 +32,8 @@ public class Button extends BasicEntity implements TouchEventListener{
     public static final int BUTTON_3_3 = 5;
 
     private List<ButtonTouchListener> buttonTouchListeners;
+
+    private boolean switcher = false;
 
     private String buttonText;
     private int selectedPaintType;
@@ -119,11 +121,19 @@ public class Button extends BasicEntity implements TouchEventListener{
     @Override
     public void render(MainGamePanel game, Canvas canvas, GameState gameState) {
         switch (selectedPaintType) {
-            case BUTTON_PRIMARY: {
+            case PRIMARY: {
                 paint.setColor(MyColors.getGuiElementColor());
                 canvas.drawRect(getRect(), paint);
 
                 paint.setColor(MyColors.getBackgroundGradientLighter());
+                if (switcher) {
+                    paint.setStrokeWidth(4f);
+                    paint.setStyle(Paint.Style.STROKE);
+                    renderArrows(canvas);
+                }
+
+                paint.setStrokeWidth(2f);
+                paint.setStyle(Paint.Style.FILL);
                 paint.setTextSize(height * 0.7f);
                 int textHeight = TextSizeCalculator.getHeightFromTextSize(paint.getTextSize());
                 paint.setTextSize(textHeight);
@@ -132,11 +142,20 @@ public class Button extends BasicEntity implements TouchEventListener{
                 canvas.drawText(buttonText, x, y + (float) textHeight / 2.5f, paint);
                 break;
             }
-            case BUTTON_SECONDARY: {
+            case SECONDARY: {
                 paint.setColor(MyColors.getGuiElementColor());
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setStrokeWidth(2f);
                 canvas.drawRect(getRect(), paint);
+
+                if (switcher) {
+                    paint.setColor(MyColors.getGuiElementColor());
+                    paint.setStrokeWidth(4f);
+                    paint.setStyle(Paint.Style.STROKE);
+                    renderArrows(canvas);
+                    paint.setStrokeWidth(2f);
+                    paint.setStyle(Paint.Style.FILL);
+                }
 
                 paint.setColor(MyColors.getGuiElementColor());
                 paint.setStyle(Paint.Style.FILL);
@@ -149,6 +168,14 @@ public class Button extends BasicEntity implements TouchEventListener{
                 break;
             }
         }
+    }
+
+    private void renderArrows(Canvas canvas) {
+        int step = height / 4;
+        canvas.drawLine(x - width / 2  + step * 2, y - height / 2 + step, x - width / 2  + step, y, paint);
+        canvas.drawLine(x - width / 2  + step, y, x - width / 2  + step * 2, y + height / 2 - step, paint);
+        canvas.drawLine(x + width / 2  - step * 2, y - height / 2 + step, x + width / 2  - step, y, paint);
+        canvas.drawLine(x + width / 2  - step, y, x + width / 2  - step * 2, y + height / 2 - step, paint);
     }
 
     @Override
@@ -167,5 +194,13 @@ public class Button extends BasicEntity implements TouchEventListener{
                 }
             }
         }
+    }
+
+    public boolean isSwitcher() {
+        return switcher;
+    }
+
+    public void setSwitcher(boolean switcher) {
+        this.switcher = switcher;
     }
 }

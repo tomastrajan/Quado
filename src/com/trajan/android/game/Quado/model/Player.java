@@ -14,6 +14,11 @@ public class Player {
         this.name = name;
     }
 
+    public Player(String persistenceString) {
+        this.UUID = persistenceString.split("\\|")[0];
+        this.name = persistenceString.split("\\|")[1];
+    }
+
     public String getUUID() {
         return UUID;
     }
@@ -28,5 +33,9 @@ public class Player {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String toPersistenceString() {
+        return UUID + "|" + name;
     }
 }

@@ -56,7 +56,7 @@ public class Block extends BasicEntity {
 
         paint.setColor(MyColors.getBlockColorByConstant(colorConstant));
 
-        if (gameState.isStateMenu() || gameState.isStateGame() || gameState.isStateArcade()) {
+        if (gameState.isStateMenu() || gameState.isStateNormal() || gameState.isStateArcade()) {
             paint.setAlpha(255);
 
             if (hitPoints == 0) {

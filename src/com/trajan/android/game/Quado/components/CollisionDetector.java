@@ -25,10 +25,14 @@ import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.entities.*;
 import com.trajan.android.game.Quado.entities.effects.ScoreDisplayHitEffect;
-import com.trajan.android.game.Quado.entities.screen.ScreenDefeatArcade;
-import com.trajan.android.game.Quado.entities.screen.ScreenDefeatNormal;
+import com.trajan.android.game.Quado.entities.screen.ScreenArcadeEnd;
+import com.trajan.android.game.Quado.entities.screen.ScreenNormalEnd;
 import com.trajan.android.game.Quado.helpers.MyUpdateEventListener;
 import com.trajan.android.game.Quado.helpers.Dimensions;
+import com.trajan.android.game.Quado.model.GameMode;
+import com.trajan.android.game.Quado.model.Player;
+import com.trajan.android.game.Quado.rest.DefaultRestService;
+import com.trajan.android.game.Quado.rest.dto.ScoreDto;
 
 import java.util.*;
 
@@ -498,7 +502,7 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
             GameState gameState = (GameState) game.getElements().getComponent(Elements.GAME_STATE);
 
-            if (gameState.isStateMenu() || gameState .isStateGame() || gameState.isStateArcade()) {
+            if (gameState.isStateMenu() || gameState .isStateNormal() || gameState.isStateArcade()) {
 
                 checkBallBlocksCollision(game);
                 checkBarCollision(game);
@@ -509,17 +513,25 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
                     if (gameState.isStateArcade()) {
                         gameState.setArcadeTimeEnd(System.currentTimeMillis());
-                        ExtStorage storage = (ExtStorage) game.getElements().getComponent(Elements.EXTERNAL_STORAGE_PROVIDER);
 
                         int scoreValue  = ((Score) game.getElements().getComponent(Elements.SCORE)).getScore();
                         int seconds = (int) (gameState.getArcadeTimeEnd() - gameState.getArcadeTimeStart()) / 1000;
 
-                        storage.saveHighScore(scoreValue, seconds, ExtStorage.HIGH_SCORE_ARCADE_FILE);
-                        ((ScreenDefeatArcade) game.getElements().getEntity(Elements.SCREEN_DEFEAT_ARCADE)).resetScore();
-                        gameState.setStateDefeatArcade();
+                        // Save new high score
+                        LocalPersistenceService lps = game.getLocalPersistenceService();
+                        lps.saveHighScore(scoreValue, seconds, LocalPersistenceService.HIGH_SCORE_ARCADE_FILE);
+
+                        DefaultRestService rest = game.getRest();
+                        Player player = lps.getSelectedPlayer();
+                        rest.createOrUpdateScore(new ScoreDto(player.getUUID(), player.getName(),
+                                GameMode.ARCADE.name().toLowerCase(), scoreValue, seconds, null));
+
+
+                        ((ScreenArcadeEnd) game.getElements().getEntity(Elements.SCREEN_ARCADE_END)).resetScore();
+                        gameState.setStateArcadeDefeat();
                     } else {
-                        ((ScreenDefeatNormal) game.getElements().getEntity(Elements.SCREEN_DEFEAT_NORMAL)).resetScore();
-                        gameState.setStateDefeatNormal();
+                        ((ScreenNormalEnd) game.getElements().getEntity(Elements.SCREEN_NORMAL_END)).resetScore();
+                        gameState.setStateNormalDefeat();
                     }
                 }
             }

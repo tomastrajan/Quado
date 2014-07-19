@@ -23,7 +23,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Region;
-import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.GameState;
 import com.trajan.android.game.Quado.components.Score;
@@ -48,7 +47,7 @@ public class ScoreDisplay extends BasicEntity {
     @Override
     public void render(MainGamePanel game,Canvas canvas, GameState gameState) {
 
-        if (gameState.isStateGame() || gameState.isStateArcade()) {
+        if (gameState.isStateNormal() || gameState.isStateArcade()) {
 
             setzIndex(2);
 
