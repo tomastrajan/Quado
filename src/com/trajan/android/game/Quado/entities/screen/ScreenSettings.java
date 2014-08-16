@@ -30,12 +30,11 @@ import android.widget.EditText;
 import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.R;
-import com.trajan.android.game.Quado.components.LocalPersistenceService;
-import com.trajan.android.game.Quado.components.GameState;
-import com.trajan.android.game.Quado.components.RenderHelper;
-import com.trajan.android.game.Quado.components.Sounds;
+import com.trajan.android.game.Quado.components.*;
 import com.trajan.android.game.Quado.entities.gui.Button;
 import com.trajan.android.game.Quado.entities.gui.ButtonTouchListener;
+import com.trajan.android.game.Quado.entities.gui.DialogAddPlayer;
+import com.trajan.android.game.Quado.entities.gui.DialogListener;
 import com.trajan.android.game.Quado.helpers.Dimensions;
 import com.trajan.android.game.Quado.helpers.MyColors;
 import com.trajan.android.game.Quado.model.Player;
@@ -91,28 +90,28 @@ public class ScreenSettings extends Screen {
                 }
             }
         });
-        buttonQuit = new Button(Button.BUTTON_2_2, Button.SECONDARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight / 2, "QUIT");
+        buttonQuit = new Button(Button.BUTTON_2_2, Button.SECONDARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight / 2, "MAIN MENU");
         buttonQuit.addButtonTouchListener(new ButtonTouchListener() {
             @Override
             public void excute(MainGamePanel game, Sounds sounds, GameState gameState) {
                 sounds.playBarHit();
                 if (gameState.getPreviousState() != gameState.STATE_MENU) {
                     gameState.setStateMenu();
-                    game.restart(false);
+                    game.restart(RestartGameContext.create());
                 } else {
                     gameState.setStateMenu();
                 }
             }
         });
-        buttonNextLevel = new Button(Button.BUTTON_1, Button.PRIMARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight - dButtonHeight / 2 - dMargin, "NEXT LEVEL");
+        buttonNextLevel = new Button(Button.BUTTON_1, Button.SECONDARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight - dButtonHeight / 2 - dMargin, "NEXT LEVEL");
         buttonNextLevel.addButtonTouchListener(new ButtonTouchListener() {
             @Override
             public void excute(MainGamePanel game, Sounds sounds, GameState gameState) {
                 sounds.playBarHit();
-                game.restart(false);
+                game.restart(RestartGameContext.create().setArcadeNextLevel(true));
             }
         });
-        buttonChangeVolume = new Button(Button.BUTTON_1, Button.PRIMARY, dContainerWidth, dMargin, (int) (dCanvasHeight * 0.2), selectedVolume);
+        buttonChangeVolume = new Button(Button.BUTTON_1, Button.SECONDARY, dContainerWidth, dMargin, (int) (dCanvasHeight * 0.2), selectedVolume);
         buttonChangeVolume.setSwitcher(true);
         buttonChangeVolume.addButtonTouchListener(new ButtonTouchListener() {
             @Override
@@ -120,7 +119,7 @@ public class ScreenSettings extends Screen {
                 changeVolume(sounds);
             }
         });
-        buttonChangeTheme = new Button(Button.BUTTON_1, Button.PRIMARY, dContainerWidth, dMargin, (int) (dCanvasHeight * 0.2) + dButtonHeight + dMargin, selectedTheme);
+        buttonChangeTheme = new Button(Button.BUTTON_1, Button.SECONDARY, dContainerWidth, dMargin, (int) (dCanvasHeight * 0.2) + dButtonHeight + dMargin, selectedTheme);
         buttonChangeTheme.setSwitcher(true);
         buttonChangeTheme.addButtonTouchListener(new ButtonTouchListener() {
             @Override
@@ -128,7 +127,7 @@ public class ScreenSettings extends Screen {
                 changeTheme(game, sounds);
             }
         });
-        buttonChangePlayer = new Button(Button.BUTTON_1, Button.PRIMARY, dContainerWidth, dMargin, (int) (dCanvasHeight * 0.2) + (dButtonHeight + dMargin) * 3, "");
+        buttonChangePlayer = new Button(Button.BUTTON_1, Button.SECONDARY, dContainerWidth, dMargin, (int) (dCanvasHeight * 0.2) + (dButtonHeight + dMargin) * 3, "");
         buttonChangePlayer.setSwitcher(true);
         buttonChangePlayer.addButtonTouchListener(new ButtonTouchListener() {
             @Override
@@ -141,35 +140,12 @@ public class ScreenSettings extends Screen {
         buttonAddPlayer.addButtonTouchListener(new ButtonTouchListener() {
             @Override
             public void excute(final MainGamePanel game, Sounds sounds, GameState gameState) {
-                final Dialog dialog = new Dialog(context, R.style.DialogSimpleInput);
-                dialog.setContentView(R.layout.dialog_simpleinput);
-                dialog.setTitle("Add new player (max 10 characters)");
-
-                final EditText input = (EditText) dialog.findViewById(R.id.input);
-                input.setBackgroundColor(Color.parseColor("#ffffff"));
-                android.widget.Button buttonSave = (android.widget.Button) dialog.findViewById(R.id.dialogButtonOk);
-                buttonSave.setOnClickListener(new View.OnClickListener() {
+                new DialogAddPlayer(game, new DialogListener() {
                     @Override
-                    public void onClick(View v) {
-                        String newPlayerName = input.getText().toString();
-                        if (newPlayerName != null && newPlayerName.length() > 0 && newPlayerName.length() <= 10) {
-                            LocalPersistenceService storage = (LocalPersistenceService) game.getElements().getComponent(Elements.EXTERNAL_STORAGE_PROVIDER);
-                            storage.createNewPlayer(newPlayerName);
-                            selectedPlayer = null;
-                            dialog.hide();
-                        }
+                    public void execute() {
+                       selectedPlayer = null;
                     }
-                });
-                android.widget.Button buttonCancel = (android.widget.Button) dialog.findViewById(R.id.dialogButtonCancel);
-                buttonCancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        input.setText(null);
-                        dialog.hide();
-                    }
-                });
-
-                dialog.show();
+                }, null);
             }
         });
     }

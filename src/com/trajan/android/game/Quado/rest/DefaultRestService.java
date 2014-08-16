@@ -19,7 +19,7 @@ public class DefaultRestService {
     private static final String LOCAL = "http://192.168.0.105:1337";
     private static final String LOCAL_API_KEY = "testKey1";
     private static final String PROD = "secret";
-    private static final String PROD_API_KEY = "even bigger secret";
+    private static final String PROD_API_KEY = "secret";
 
     private MainGamePanel game;
     private RestAdapter restAdapter;

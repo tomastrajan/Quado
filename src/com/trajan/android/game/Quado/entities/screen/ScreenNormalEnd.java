@@ -6,10 +6,7 @@ import android.graphics.Region;
 import android.view.MotionEvent;
 import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
-import com.trajan.android.game.Quado.components.LocalPersistenceService;
-import com.trajan.android.game.Quado.components.GameState;
-import com.trajan.android.game.Quado.components.Score;
-import com.trajan.android.game.Quado.components.Sounds;
+import com.trajan.android.game.Quado.components.*;
 import com.trajan.android.game.Quado.entities.gui.Button;
 import com.trajan.android.game.Quado.entities.gui.ButtonTouchListener;
 import com.trajan.android.game.Quado.entities.gui.Label;
@@ -82,10 +79,10 @@ public class ScreenNormalEnd extends Screen {
                 sounds.playBarHit();
                 if (gameState.isStateNormalDefeat()) {
                     gameState.setStateNormal();
-                    game.restart(false);
+                    game.restart(RestartGameContext.create());
                 } else {
                     gameState.setStateNormal();
-                    game.restart(true);
+                    game.restart(RestartGameContext.create().setScore(game.getScore()));
                 }
             }
         });
@@ -95,7 +92,7 @@ public class ScreenNormalEnd extends Screen {
             public void excute(MainGamePanel game, Sounds sounds, GameState gameState) {
                 sounds.playBarHit();
                 gameState.setStateMenu();
-                game.restart(false);
+                game.restart(RestartGameContext.create());
             }
         });
         achievedScore = new Label(dContainerWidth, dMargin, (int) (dCanvasHeight * 0.20f), "");

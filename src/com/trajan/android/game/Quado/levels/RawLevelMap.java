@@ -34,7 +34,7 @@ public class RawLevelMap implements LevelMap {
 
     private Integer rowCount = 0;
     private Integer colCount = 0;
-    private boolean[][] blockMap;
+    private BlockType[][] blockMap;
     private InputStream inputStream;
 
     public RawLevelMap(Context context, int levelResourceConstant) {
@@ -69,16 +69,18 @@ public class RawLevelMap implements LevelMap {
         rowCount = lineCount;
 
         // Create block map
-        blockMap = new boolean[rowCount][colCount];
+        blockMap = new BlockType[rowCount][colCount];
 
         int rowCount = 0;
         for (String row : rowList) {
 
             for (int col = 0; col < row.length(); col++) {
-                if (row.charAt(col) == 'x') {
-                    blockMap[rowCount][col] = true;
+                if (row.charAt(col) == BlockType.NORMAL.getCode()) {
+                    blockMap[rowCount][col] = BlockType.NORMAL;
+                } else if (row.charAt(col) ==  BlockType.INDESTRUCTIBLE.getCode()) {
+                    blockMap[rowCount][col] = BlockType.INDESTRUCTIBLE;
                 } else {
-                    blockMap[rowCount][col] = false;
+                    blockMap[rowCount][col] = BlockType.EMPTY;
                 }
             }
             rowCount++;
@@ -97,7 +99,7 @@ public class RawLevelMap implements LevelMap {
     }
 
     @Override
-    public boolean[][] getBlockMap() {
+    public BlockType[][] getBlockMap() {
         return blockMap;
     }
 }

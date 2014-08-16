@@ -3,8 +3,8 @@ xxxxooooxxxx
 xxxxoxxoxxxx
 xxxxoxxoxxxx
 oooooxxooooo
-ooxxxxxxxxoo
-ooxxxxxxxxoo
+ooxxxZZxxxoo
+ooxxxZZxxxoo
 oooooxxooooo
 xxxxoxxoxxxx
 xxxxoxxoxxxx

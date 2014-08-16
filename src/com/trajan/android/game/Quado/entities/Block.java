@@ -37,18 +37,34 @@ public class Block extends BasicEntity {
     private int hitPoints = 1;
     private boolean isHittable = true;
     private int recentlyHit = 0;
+    private boolean indestructable;
 
     private int colorConstant;
     private Timer timer;
     private Rect blockRectangle;
+    private Rect blockRectangleIndestructible;
 
-    public Block(Dimensions dimensions) {
+    private int top;
+    private int right;
+    private int bottom;
+    private int left;
+
+
+    public Block(Dimensions dimensions, boolean indestructable) {
         super(dimensions);
+        this.indestructable = indestructable;
     }
 
     public void initializeBlock() {
         colorConstant = MyColors.getRandomBlockColor();
         blockRectangle = new Rect(x - width / 2, y - height / 2, x + width / 2, y + height / 2);
+
+        this.left = x - width / 2 + 1;
+        this.top = y - height / 2 + 1;
+        this.right = x + width / 2 - 1;
+        this.bottom = y + height / 2 - 1;
+
+        blockRectangleIndestructible = new Rect(left, top, right, bottom);
     }
 
     @Override
@@ -67,8 +83,19 @@ public class Block extends BasicEntity {
             paint.setAlpha(MyColors.getAlpha());
         }
 
-        canvas.clipRect(blockRectangle, Region.Op.REPLACE);
-        canvas.drawRect(blockRectangle, paint);
+        if (indestructable) {
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(2f);
+            paint.setStrokeJoin(Paint.Join.MITER);
+            canvas.clipRect(0, 0, canvas.getWidth(), canvas.getHeight(), Region.Op.REPLACE);
+            canvas.drawRect(blockRectangleIndestructible, paint);
+            canvas.drawLine(left, top, right, bottom, paint);
+            canvas.drawLine(left, bottom, right, top, paint);
+        } else {
+            paint.setStyle(Paint.Style.FILL);
+            canvas.clipRect(blockRectangle, Region.Op.REPLACE);
+            canvas.drawRect(blockRectangle, paint);
+        }
 
 
         if (!isHittable && recentlyHit > 0) {
@@ -85,7 +112,7 @@ public class Block extends BasicEntity {
 
     public Entity decrementHitPoints(GameState gameState, BlockCounter blockCounter) {
 
-        if (isHittable) {
+        if (isHittable && !indestructable) {
 
             hitPoints--;
 
@@ -107,10 +134,15 @@ public class Block extends BasicEntity {
             Paint hitEffectPaint = new Paint();
             hitEffectPaint.setColor(MyColors.getBlockColorByConstant(colorConstant));
             return new BlockHitEffect(x, y, width, height, hitEffectPaint);
-
-        } else {
-            return null;
         }
+
+        if (indestructable) {
+            Paint hitEffectPaint = new Paint();
+            hitEffectPaint.setColor(MyColors.getBlockColorByConstant(colorConstant));
+            return new BlockHitEffect(x, y, width, height, hitEffectPaint);
+        }
+
+        return null;
     }
 
     private void refreshBlock(int delaySeconds, final BlockCounter blockCounter) {

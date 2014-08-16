@@ -59,13 +59,16 @@ public class Level implements MyUpdateEventListener {
         int blockHeight = 0;
 
         // Create blocks
-        boolean[][] blockMap = levelMap.getBlockMap();
+        BlockType[][] blockMap = levelMap.getBlockMap();
         for (int row = 0; row < levelMap.getRows(); row++) {
             for (int col = 0; col < levelMap.getCols(); col++) {
 
-                if (blockMap[row][col]) {
+                boolean normalBlock = blockMap[row][col] == BlockType.NORMAL;
+                boolean indestructibleBlock = blockMap[row][col] == BlockType.INDESTRUCTIBLE;
 
-                    Block block = new Block(posSizeCalc.getBlock());
+                if (normalBlock || indestructibleBlock) {
+
+                    Block block = new Block(posSizeCalc.getBlock(), indestructibleBlock);
 
                     int spacing = posSizeCalc.getBlockSpacing();
                     int horizontalUsedSpace = (block.getWidth() * (levelMap.getCols() - 1)) + (spacing * (levelMap.getCols() - 1));

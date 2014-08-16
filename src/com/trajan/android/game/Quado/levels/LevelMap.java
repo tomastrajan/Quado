@@ -22,7 +22,7 @@ package com.trajan.android.game.Quado.levels;
 public interface LevelMap {
 
     public void initializeMap();
-    public boolean[][] getBlockMap();
+    public BlockType[][] getBlockMap();
     public int getRows();
     public int getCols();
 

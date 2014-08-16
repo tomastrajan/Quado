@@ -161,24 +161,6 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
         }
     }
 
-    private boolean isPointArrayEmpty(Point[] points) {
-        boolean result = true;
-        for (Point point : points) {
-            if (point != null) {
-                result = false;
-            }
-        }
-        return result;
-    }
-
-    private int getPointIndex(int loopIndex) {
-        if (loopIndex + 4 > 8) {
-            return loopIndex + 4 - 8;
-        } else {
-            return loopIndex + 4;
-        }
-    }
-
     private Path createBallCorrPolygon(Point[] ballPoints, Point[] ballCorrPoints) {
         Path path = new Path();
         int containedPoint = 0;
@@ -278,8 +260,6 @@ public class CollisionDetector implements MyUpdateEventListener, Component {
 
                             if (block.getHitPoints() == 0) {
                                 game.getElements().getLevel().getBlockCounter().decrementRemainingBlockCount();
-                                score.brickHit();
-                            } else {
                                 score.brickHit();
                             }
 

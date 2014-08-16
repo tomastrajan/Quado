@@ -66,6 +66,11 @@ public class LevelList {
         levelList.add(R.raw.level_13_rows);
         levelList.add(R.raw.level_14_four_boxes);
         levelList.add(R.raw.level_15_cupcackes);
+        levelList.add(R.raw.level_16);
+        levelList.add(R.raw.level_17);
+        levelList.add(R.raw.level_18);
+        levelList.add(R.raw.level_19);
+        levelList.add(R.raw.level_20);
 
     }
 

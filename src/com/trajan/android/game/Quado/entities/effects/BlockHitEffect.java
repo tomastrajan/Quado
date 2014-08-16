@@ -25,21 +25,11 @@ import com.trajan.android.game.Quado.components.GameState;
 import com.trajan.android.game.Quado.entities.BasicEntity;
 import com.trajan.android.game.Quado.helpers.Dimensions;
 
-public class BlockHitEffect extends BasicEntity implements HitEffect {
+public class BlockHitEffect extends AbstractHitEffect implements HitEffect {
 
     private static final String TAG = BlockHitEffect.class.getSimpleName();
 
     private static final int START_STATE = 20;
-    private static final int FINISH_STATE = 0;
-
-    private int left;
-    private int top;
-    private int right;
-    private int bottom;
-
-    private int state;
-    private float effectSizeMultiplier;
-    private Paint paint;
 
     public BlockHitEffect(int x, int y, int width, int height, Paint paint) {
         super(new Dimensions(x, y, width, height));
@@ -76,11 +66,4 @@ public class BlockHitEffect extends BasicEntity implements HitEffect {
 
     }
 
-    public boolean isFinished() {
-        if (state <= 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

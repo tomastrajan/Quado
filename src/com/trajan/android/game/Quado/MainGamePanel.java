@@ -69,7 +69,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
     private EntityPositionAndSizeCalculator posSizeCalc;
     private LocalPersistenceService resLocalPersistenceService;
     private DefaultRestService rest;
-    private Sounds resSounds;
+    private Sounds sounds;
 
 
     // Listeners
@@ -91,7 +91,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
         // Initialize resources
         resLocalPersistenceService = new LocalPersistenceService(context);
-        resSounds = new Sounds(context, resLocalPersistenceService);
+        sounds = new Sounds(context, resLocalPersistenceService);
 
     }
 
@@ -138,7 +138,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
         }
     }
 
-    private void initializeGame(Score victoryScore) {
+    private void initializeGame(RestartGameContext restartGameContext) {
 
         rest = new DefaultRestService(this);
 
@@ -171,14 +171,19 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
             score = new Score();
             gameState.setArcadeTimeStart(System.currentTimeMillis());
-            levelMap = levelList.getNextLevel();
+
+            if (restartGameContext.isArcadeNextLevel()) {
+                levelMap = levelList.getNextLevel();
+            } else {
+                levelMap = levelList.getRandomLevel();
+            }
 
         // Normal
         } else {
 
             // Continue after victory
-            if (victoryScore != null) {
-                score = victoryScore;
+            if (restartGameContext.getScore() != null) {
+                score = restartGameContext.getScore();
                 score.incrementScoreMultiplicator();
                 score.padHit();
                 levelMap = levelList.getNextLevel();
@@ -221,7 +226,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
         // Add components to elements
         elements.addComponent(Elements.SCORE, score);
-        elements.addComponent(Elements.SOUNDS, resSounds);
+        elements.addComponent(Elements.SOUNDS, sounds);
         elements.addComponent(Elements.RENDER_HELPER, renderHelper);
         elements.addComponent(Elements.GAME_STATE, gameState);
         elements.addComponent(Elements.EXTERNAL_STORAGE_PROVIDER, resLocalPersistenceService);
@@ -245,17 +250,13 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
     }
 
-    public void restart(boolean isVictory) {
+    public void restart(RestartGameContext restartGameContext) {
 
         destroyThread();
 
         thread = new MainThread(getHolder(), this);
 
-        if (isVictory) {
-            initializeGame(score);
-        } else {
-            initializeGame(null);
-        }
+        initializeGame(restartGameContext);
 
         thread.setRunning(true);
         thread.start();
@@ -286,6 +287,14 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
     public Score getScore() {
         return score;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public Sounds getSounds() {
+        return sounds;
     }
 
     public MainThread getThread() {

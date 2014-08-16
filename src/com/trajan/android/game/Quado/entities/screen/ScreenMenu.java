@@ -28,13 +28,17 @@ import android.view.MotionEvent;
 import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.GameState;
+import com.trajan.android.game.Quado.components.RestartGameContext;
 import com.trajan.android.game.Quado.components.Sounds;
 import com.trajan.android.game.Quado.entities.gui.Button;
 import com.trajan.android.game.Quado.entities.gui.ButtonTouchListener;
+import com.trajan.android.game.Quado.entities.gui.DialogAddPlayer;
+import com.trajan.android.game.Quado.entities.gui.DialogListener;
 import com.trajan.android.game.Quado.helpers.Dimensions;
 import com.trajan.android.game.Quado.helpers.MyColors;
 import com.trajan.android.game.Quado.helpers.TextSizeCalculator;
 import com.trajan.android.game.Quado.levels.Level;
+import com.trajan.android.game.Quado.model.Player;
 
 public class ScreenMenu extends Screen {
 
@@ -55,29 +59,49 @@ public class ScreenMenu extends Screen {
 
         startHelper = START_DURATION;
 
-        buttonNormal = new Button(Button.BUTTON_2_1, Button.PRIMARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight - dButtonHeight / 2 - dMargin, "NORMAL");
+        buttonNormal = new Button(Button.BUTTON_1, Button.SECONDARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 3 - dButtonHeight - dButtonHeight / 2, "CLASSIC");
         buttonNormal.addButtonTouchListener(new ButtonTouchListener() {
             @Override
-            public void excute(MainGamePanel game, Sounds sounds, GameState gameState) {
-                sounds.playBarHit();
-                gameState.setStateNormal();
-                game.restart(false);
+            public void excute(final MainGamePanel game, Sounds sounds, GameState gameState) {
+                DialogListener success = new DialogListener() {
+                    @Override
+                    public void execute() {
+                        startNormal(game);
+                    }
+                };
+                if (isPlayer(game, success)) {
+                    startNormal(game);
+                }
             }
         });
-        buttonArcade = new Button(Button.BUTTON_2_2, Button.PRIMARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight - dButtonHeight / 2 - dMargin, "ARCADE");
+        buttonArcade = new Button(Button.BUTTON_1, Button.PRIMARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 4 - dButtonHeight * 2 - dButtonHeight / 2, "ARCADE");
         buttonArcade.addButtonTouchListener(new ButtonTouchListener() {
             @Override
-            public void excute(MainGamePanel game, Sounds sounds, GameState gameState) {
-                sounds.playBarHit();
-                gameState.setStateArcade();
-                game.restart(false);
+            public void excute(final MainGamePanel game, Sounds sounds, GameState gameState) {
+                DialogListener success = new DialogListener() {
+                    @Override
+                    public void execute() {
+                        startArcade(game);
+                    }
+                };
+                if (isPlayer(game, success)) {
+                    startArcade(game);
+                }
             }
         });
         buttonSettings = new Button(Button.BUTTON_2_1, Button.SECONDARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight / 2, "SETTINGS");
         buttonSettings.addButtonTouchListener(new ButtonTouchListener() {
             @Override
-            public void excute(MainGamePanel game, Sounds sounds, GameState gameState) {
-                gameState.setStatePause();
+            public void excute(final MainGamePanel game, Sounds sounds, GameState gameState) {
+                DialogListener success = new DialogListener() {
+                    @Override
+                    public void execute() {
+                        game.getGameState().setStatePause();
+                    }
+                };
+                if (isPlayer(game, success)) {
+                    game.getGameState().setStatePause();
+                }
             }
         });
         buttonQuit = new Button(Button.BUTTON_2_2, Button.SECONDARY, dContainerWidth, dMargin, dCanvasHeight - dMargin * 2 - dButtonHeight / 2, "QUIT");
@@ -89,6 +113,27 @@ public class ScreenMenu extends Screen {
                 ((Activity) game.getContext()).finish();
             }
         });
+    }
+
+    private void startArcade(MainGamePanel game) {
+        game.getSounds().playBarHit();
+        game.getGameState().setStateArcade();
+        game.restart(RestartGameContext.create());
+    }
+
+    private void startNormal(MainGamePanel game) {
+        game.getSounds().playBarHit();
+        game.getGameState().setStateNormal();
+        game.restart(RestartGameContext.create());
+    }
+
+    private boolean isPlayer(final MainGamePanel game, DialogListener success) {
+        Player player = game.getLocalPersistenceService().getSelectedPlayer();
+        if (player == null) {
+            new DialogAddPlayer(game, success, null);
+            return false;
+        }
+        return true;
     }
 
     @Override

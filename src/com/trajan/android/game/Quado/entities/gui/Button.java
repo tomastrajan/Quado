@@ -2,11 +2,10 @@ package com.trajan.android.game.Quado.entities.gui;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Region;
 import android.view.MotionEvent;
-import com.trajan.android.game.Quado.Elements;
 import com.trajan.android.game.Quado.MainGamePanel;
 import com.trajan.android.game.Quado.components.GameState;
-import com.trajan.android.game.Quado.components.Sounds;
 import com.trajan.android.game.Quado.entities.BasicEntity;
 import com.trajan.android.game.Quado.helpers.Dimensions;
 import com.trajan.android.game.Quado.helpers.MyColors;
@@ -20,7 +19,7 @@ import java.util.List;
  * @author Tomas Trajan
  * @creaded 2014-07-11
  */
-public class Button extends BasicEntity implements TouchEventListener{
+public class Button extends BasicEntity implements TouchEventListener {
 
     public static final int PRIMARY = 10;
     public static final int SECONDARY = 11;
@@ -38,11 +37,11 @@ public class Button extends BasicEntity implements TouchEventListener{
     private String buttonText;
     private int selectedPaintType;
 
-    public Button (int buttonWidth, int paintType, int containerWidth, int margin, int topOffset, String buttonText) {
+    public Button(int buttonWidth, int paintType, int containerWidth, int margin, int topOffset, String buttonText) {
         buttonTouchListeners = new ArrayList<ButtonTouchListener>();
         selectedPaintType = paintType;
         Dimensions dimensions;
-        switch(buttonWidth){
+        switch (buttonWidth) {
             case BUTTON_1: {
                 dimensions = new Dimensions(containerWidth / 2 + margin,
                         topOffset,
@@ -122,6 +121,8 @@ public class Button extends BasicEntity implements TouchEventListener{
     public void render(MainGamePanel game, Canvas canvas, GameState gameState) {
         switch (selectedPaintType) {
             case PRIMARY: {
+
+                canvas.clipRect(0, 0, canvas.getWidth(), canvas.getHeight(), Region.Op.REPLACE);
                 paint.setColor(MyColors.getGuiElementColor());
                 canvas.drawRect(getRect(), paint);
 
@@ -131,6 +132,7 @@ public class Button extends BasicEntity implements TouchEventListener{
                     paint.setStyle(Paint.Style.STROKE);
                     renderArrows(canvas);
                 }
+
 
                 paint.setStrokeWidth(2f);
                 paint.setStyle(Paint.Style.FILL);
@@ -143,6 +145,8 @@ public class Button extends BasicEntity implements TouchEventListener{
                 break;
             }
             case SECONDARY: {
+
+                canvas.clipRect(0, 0, canvas.getWidth(), canvas.getHeight(), Region.Op.REPLACE);
                 paint.setColor(MyColors.getGuiElementColor());
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setStrokeWidth(2f);
@@ -172,26 +176,25 @@ public class Button extends BasicEntity implements TouchEventListener{
 
     private void renderArrows(Canvas canvas) {
         int step = height / 4;
-        canvas.drawLine(x - width / 2  + step * 2, y - height / 2 + step, x - width / 2  + step, y, paint);
-        canvas.drawLine(x - width / 2  + step, y, x - width / 2  + step * 2, y + height / 2 - step, paint);
-        canvas.drawLine(x + width / 2  - step * 2, y - height / 2 + step, x + width / 2  - step, y, paint);
-        canvas.drawLine(x + width / 2  - step, y, x + width / 2  - step * 2, y + height / 2 - step, paint);
+        canvas.drawLine(x - width / 2 + step * 2, y - height / 2 + step, x - width / 2 + step, y, paint);
+        canvas.drawLine(x - width / 2 + step, y, x - width / 2 + step * 2, y + height / 2 - step, paint);
+        canvas.drawLine(x + width / 2 - step * 2, y - height / 2 + step, x + width / 2 - step, y, paint);
+        canvas.drawLine(x + width / 2 - step, y, x + width / 2 - step * 2, y + height / 2 - step, paint);
     }
 
     @Override
-    public void handleTouchEvent(MainGamePanel game, MotionEvent event) {
-
-        GameState gameState = (GameState) game.getElements().getComponent(Elements.GAME_STATE);
-        Sounds sounds = (Sounds) game.getElements().getComponent(Elements.SOUNDS);
+    public void handleTouchEvent(final MainGamePanel game, MotionEvent event) {
 
         float eventX = event.getX();
         float eventY = event.getY();
 
         if (eventX >= x - width / 2 && eventX <= x + width / 2) {
-            if (eventY >=  y - height / 2 && eventY <= y + height / 2) {
-                for (ButtonTouchListener buttonTouchListener : buttonTouchListeners) {
-                    buttonTouchListener.excute(game, sounds, gameState);
+            if (eventY >= y - height / 2 && eventY <= y + height / 2) {
+
+                for (ButtonTouchListener listener : buttonTouchListeners) {
+                    listener.excute(game, game.getSounds(), game.getGameState());
                 }
+
             }
         }
     }

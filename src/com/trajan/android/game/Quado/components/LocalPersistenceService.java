@@ -196,11 +196,6 @@ public class LocalPersistenceService implements Component {
             properties.setProperty(SETTINGS_THEME, "0");
         }
 
-        if (properties.getProperty(SETTINGS_PLAYER) == null) {
-            properties.setProperty(SETTINGS_PLAYER,  UUID.randomUUID().toString() + "|Change me!");
-        }
-
-
         try {
             // Save default settings
             properties.store(new FileOutputStream(settingsFile), null);
@@ -246,7 +241,10 @@ public class LocalPersistenceService implements Component {
 
     public Player getSelectedPlayer() {
         String player = getSettings().getProperty(LocalPersistenceService.SETTINGS_PLAYER);
-        return new Player(player);
+        if (player != null && !"".equals(player)) {
+            return new Player(player);
+        }
+        return null;
     }
 
     public Player getNextPlayer(Player currentPlayer) {
