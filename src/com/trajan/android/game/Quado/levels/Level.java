@@ -81,9 +81,11 @@ public class Level implements MyUpdateEventListener {
 
                     blocks.add(block);
 
-                    blockCounter.incrementTotalBlockCount();
-
                     blockHeight = block.getHeight();
+
+                    if (normalBlock) {
+                        blockCounter.incrementTotalBlockCount();
+                    }
                 }
             }
         }
